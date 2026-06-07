@@ -36,6 +36,12 @@ yarn-error.log*
 # vercel
 .vercel
 
+# obsidian
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/plugins/
+.obsidian/hotkeys.json
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

@@ -1,0 +1,12 @@
+{
+  "showLineNumber": true,
+  "spellcheck": false,
+  "defaultViewMode": "source",
+  "livePreview": true,
+  "showFrontmatter": true,
+  "foldHeading": true,
+  "foldIndent": true,
+  "newFileLocation": "folder",
+  "newFileFolderPath": "content/posts",
+  "attachmentFolderPath": "public/images"
+}
