@@ -6,13 +6,40 @@ import type { PostFrontmatter, PostMeta } from "@/types/post";
 
 const POSTS_DIR = path.join(process.cwd(), "content/posts");
 
-export function getAllPosts(): PostMeta[] {
-  const files = fs.readdirSync(POSTS_DIR).filter((file) => file.endsWith(".mdx"));
+type PostFile = {
+  slug: string;
+  category: string;
+  filePath: string;
+};
 
-  const posts = files
-    .map((file) => {
-      const slug = file.replace(/\.mdx$/, "");
-      const filePath = path.join(POSTS_DIR, file);
+function getPostFiles(): PostFile[] {
+  const entries = fs.readdirSync(POSTS_DIR, { withFileTypes: true });
+  const postFiles: PostFile[] = [];
+
+  for (const entry of entries) {
+    if (entry.isDirectory()) {
+      const category = entry.name;
+      const categoryDir = path.join(POSTS_DIR, category);
+      const files = fs.readdirSync(categoryDir).filter((file) => file.endsWith(".md"));
+
+      for (const file of files) {
+        postFiles.push({
+          slug: file.replace(/\.md$/, ""),
+          category,
+          filePath: path.join(categoryDir, file),
+        });
+      }
+    }
+  }
+
+  return postFiles;
+}
+
+export function getAllPosts(): PostMeta[] {
+  const postFiles = getPostFiles();
+
+  const posts = postFiles
+    .map(({ slug, category, filePath }) => {
       const fileContent = fs.readFileSync(filePath, "utf-8");
       const { data, content } = matter(fileContent);
       const frontmatter = data as PostFrontmatter;
@@ -22,6 +49,7 @@ export function getAllPosts(): PostMeta[] {
       return {
         ...frontmatter,
         slug,
+        category,
         readingTime: readingTime(content).text,
       };
     })
@@ -33,8 +61,13 @@ export function getAllPosts(): PostMeta[] {
 }
 
 export function getPostBySlug(slug: string) {
-  const filePath = path.join(POSTS_DIR, `${slug}.mdx`);
-  const fileContent = fs.readFileSync(filePath, "utf-8");
+  const postFile = getPostFiles().find((file) => file.slug === slug);
+
+  if (!postFile) {
+    throw new Error(`포스트를 찾을 수 없습니다: ${slug}`);
+  }
+
+  const fileContent = fs.readFileSync(postFile.filePath, "utf-8");
   const { data, content } = matter(fileContent);
   const frontmatter = data as PostFrontmatter;
 
@@ -42,6 +75,7 @@ export function getPostBySlug(slug: string) {
     meta: {
       ...frontmatter,
       slug,
+      category: postFile.category,
       readingTime: readingTime(content).text,
     },
     content,
@@ -49,8 +83,5 @@ export function getPostBySlug(slug: string) {
 }
 
 export function getPostSlugs(): string[] {
-  return fs
-    .readdirSync(POSTS_DIR)
-    .filter((file) => file.endsWith(".mdx"))
-    .map((file) => file.replace(/\.mdx$/, ""));
+  return getPostFiles().map((file) => file.slug);
 }

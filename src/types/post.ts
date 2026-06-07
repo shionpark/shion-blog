@@ -8,5 +8,6 @@ export type PostFrontmatter = {
 
 export type PostMeta = PostFrontmatter & {
   slug: string;
+  category: string;
   readingTime: string;
 };

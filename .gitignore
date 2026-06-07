@@ -2,6 +2,8 @@
 
 # dependencies
 /node_modules
+/node_modules.nosync
+node_modules 2
 /.pnp
 .pnp.*
 .yarn/*
@@ -15,6 +17,7 @@
 
 # next.js
 /.next/
+/.next.nosync/
 /out/
 
 # production
@@ -41,6 +44,9 @@ yarn-error.log*
 .obsidian/workspace-mobile.json
 .obsidian/plugins/
 .obsidian/hotkeys.json
+
+# personal documents (viewable in Obsidian only)
+/documents
 
 # typescript
 *.tsbuildinfo
