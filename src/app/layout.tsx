@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { WebsiteJsonLd } from "@/components/json-ld";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -16,6 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://shion-blog.vercel.app"),
   title: {
     default: "Shion Park",
     template: "%s | Shion Park",
@@ -31,6 +33,17 @@ export const metadata: Metadata = {
     locale: "ko_KR",
     type: "website",
   },
+  twitter: {
+    card: "summary",
+    title: "Shion Park",
+    description:
+      "데이터와 AI를 활용해 제품과 운영을 자동화하는 풀스택 개발자",
+  },
+  alternates: {
+    types: {
+      "application/rss+xml": "/feed.xml",
+    },
+  },
 };
 
 export default function RootLayout({
@@ -45,6 +58,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-dvh flex flex-col antialiased">
+        <WebsiteJsonLd />
         <ThemeProvider>
           <Header />
           <main className="flex-1">{children}</main>
