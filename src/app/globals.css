@@ -136,3 +136,33 @@ body {
   margin: 0 -1rem;
   padding: 0 1rem;
 }
+
+/* 테이블 */
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.875rem;
+  overflow-x: auto;
+  display: block;
+}
+
+.prose thead {
+  border-bottom: 2px solid var(--border);
+}
+
+.prose th {
+  text-align: left;
+  font-weight: 600;
+  padding: 0.5rem 0.75rem;
+  white-space: nowrap;
+}
+
+.prose td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.prose tbody tr:hover {
+  background: var(--muted);
+}
