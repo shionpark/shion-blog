@@ -10,11 +10,29 @@ type PostListFilterableProps = {
   allTags: string[];
 };
 
+const DEFAULT_VISIBLE_TAG_COUNT = 12;
+
 export function PostListFilterable({ posts, allTags }: PostListFilterableProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const activeTag = searchParams.get("tag");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showAllTags, setShowAllTags] = useState(false);
+
+  // 태그별 글 수 계산 + 빈도순 정렬
+  const tagsWithCount = useMemo(() => {
+    const countMap = new Map<string, number>();
+    for (const post of posts) {
+      for (const tag of post.tags) {
+        countMap.set(tag, (countMap.get(tag) ?? 0) + 1);
+      }
+    }
+    return allTags
+      .map((tag) => ({ name: tag, count: countMap.get(tag) ?? 0 }))
+      .sort((tagA, tagB) => tagB.count - tagA.count);
+  }, [posts, allTags]);
+
+  const hasHiddenTags = tagsWithCount.length > DEFAULT_VISIBLE_TAG_COUNT;
 
   const filteredPosts = useMemo(() => {
     return posts.filter((post) => {
@@ -81,19 +99,45 @@ export function PostListFilterable({ posts, allTags }: PostListFilterableProps) 
 
       {/* 태그 필터 */}
       <div className="flex flex-wrap gap-2 mb-8">
-        {allTags.map((tag) => (
+        {tagsWithCount.slice(0, DEFAULT_VISIBLE_TAG_COUNT).map(({ name, count }) => (
           <button
-            key={tag}
-            onClick={() => handleTagClick(tag)}
+            key={name}
+            onClick={() => handleTagClick(name)}
             className={`text-xs px-3 py-1.5 rounded-full border transition-colors cursor-pointer ${
-              activeTag === tag
+              activeTag === name
                 ? "bg-accent text-white border-accent"
                 : "bg-muted text-muted-foreground border-border hover:border-accent/50"
             }`}
           >
-            {tag}
+            {name}
+            <span className="ml-1 opacity-60">{count}</span>
           </button>
         ))}
+        {hasHiddenTags && (
+          <button
+            onClick={() => setShowAllTags((prev) => !prev)}
+            className="text-xs px-3 py-1.5 rounded-full border border-border text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+          >
+            {showAllTags
+              ? "접기"
+              : `+${tagsWithCount.length - DEFAULT_VISIBLE_TAG_COUNT}개 더보기`}
+          </button>
+        )}
+        {showAllTags &&
+          tagsWithCount.slice(DEFAULT_VISIBLE_TAG_COUNT).map(({ name, count }) => (
+            <button
+              key={name}
+              onClick={() => handleTagClick(name)}
+              className={`text-xs px-3 py-1.5 rounded-full border transition-colors cursor-pointer ${
+                activeTag === name
+                  ? "bg-accent text-white border-accent"
+                  : "bg-muted text-muted-foreground border-border hover:border-accent/50"
+              }`}
+            >
+              {name}
+              <span className="ml-1 opacity-60">{count}</span>
+            </button>
+          ))}
         {activeTag && (
           <button
             onClick={() => {
