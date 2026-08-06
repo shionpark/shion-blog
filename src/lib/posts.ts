@@ -85,3 +85,27 @@ export function getPostBySlug(slug: string) {
 export function getPostSlugs(): string[] {
   return getPostFiles().map((file) => file.slug);
 }
+
+export function getAllTags(): string[] {
+  const posts = getAllPosts();
+  const tagSet = new Set<string>();
+
+  for (const post of posts) {
+    for (const tag of post.tags) {
+      tagSet.add(tag);
+    }
+  }
+
+  return Array.from(tagSet).sort();
+}
+
+export function getAllCategories(): string[] {
+  const posts = getAllPosts();
+  const categorySet = new Set<string>();
+
+  for (const post of posts) {
+    categorySet.add(post.category);
+  }
+
+  return Array.from(categorySet).sort();
+}
