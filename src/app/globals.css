@@ -74,10 +74,20 @@ body {
   opacity: 0.8;
 }
 
-.prose ul,
+.prose ul {
+  padding-left: 1.5rem;
+  margin-bottom: 1.25rem;
+  list-style: disc !important;
+}
+
 .prose ol {
   padding-left: 1.5rem;
   margin-bottom: 1.25rem;
+  list-style: decimal !important;
+}
+
+.prose ul ul {
+  list-style: circle !important;
 }
 
 .prose li {
@@ -112,7 +122,7 @@ body {
   margin: 2rem 0;
 }
 
-/* 코드 블록 (rehype-pretty-code) */
+/* 코드 블록 (rehype-pretty-code + shiki) */
 .prose pre {
   background: var(--muted) !important;
   border: 1px solid var(--border);
@@ -128,6 +138,15 @@ body {
   background: transparent !important;
   padding: 0;
   font-size: inherit;
+}
+
+/* shiki 듀얼 테마 색상 매핑 */
+.prose pre code span {
+  color: var(--shiki-light);
+}
+
+.dark .prose pre code span {
+  color: var(--shiki-dark);
 }
 
 /* 코드 블록 라인 하이라이트 */
