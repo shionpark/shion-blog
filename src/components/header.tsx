@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ThemeToggle } from "./theme-toggle";
+import { MobileNav } from "./mobile-nav";
 
 const NAV_ITEMS = [
   { href: "/posts", label: "Posts" },
@@ -17,7 +18,9 @@ export function Header() {
         >
           Shion
         </Link>
-        <nav className="flex items-center gap-6">
+
+        {/* 데스크탑 내비게이션 */}
+        <nav className="hidden md:flex items-center gap-6">
           {NAV_ITEMS.map(({ href, label }) => (
             <Link
               key={href}
@@ -29,6 +32,12 @@ export function Header() {
           ))}
           <ThemeToggle />
         </nav>
+
+        {/* 모바일 내비게이션 */}
+        <div className="flex items-center gap-2 md:hidden">
+          <ThemeToggle />
+          <MobileNav />
+        </div>
       </div>
     </header>
   );
