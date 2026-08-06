@@ -1,6 +1,6 @@
 ---
 title: "사소한 변수명 변경이 불러온 리액트 컴포넌트 설계의 원칙"
-description: ""
+description: "React의 children prop 이름을 변경하며 발생한 문제를 통해 컨벤션 준수와 협업 소통의 중요성을 돌아봅니다."
 date: "2024-12-10"
 tags: ["Blog"]
 published: true

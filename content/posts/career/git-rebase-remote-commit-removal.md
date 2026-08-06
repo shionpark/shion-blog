@@ -1,6 +1,6 @@
 ---
 title: "git rebase로 원격 커밋 내역 제거하기"
-description: ""
+description: "git rebase로 원격 저장소의 불필요한 커밋을 제거한 과정과 revert와의 차이를 실제 사례를 통해 정리합니다."
 date: "2025-08-20"
 tags: []
 published: true

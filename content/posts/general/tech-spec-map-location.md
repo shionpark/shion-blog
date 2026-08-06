@@ -1,6 +1,6 @@
 ---
 title: "기술 명세서: 지도에 사용자 및 음식점 위치 표시"
-description: ""
+description: "Kakao Map API로 사용자 위치 기반 음식점 지도를 구현하기 위한 기술 명세와 개발 계획을 정리합니다."
 date: "2025-05-22"
 tags: []
 published: true

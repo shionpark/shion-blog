@@ -1,6 +1,6 @@
 ---
 title: "실제 데이터 기반 ApexCharts 차트 구현 기록"
-description: ""
+description: "ApexCharts로 회원 통계, 연령 분포, 시간대별 방문 등 실제 데이터 기반 대시보드 차트를 구현한 과정을 정리합니다."
 date: "2025-03-05"
 tags: ["apexCharts", "Dashboard"]
 published: true

@@ -1,6 +1,6 @@
 ---
 title: "Suspense 도입기"
-description: ""
+description: "Toss Suspensive로 스피너 기반 로딩을 Suspense + 스켈레톤 UI 부분 로딩으로 전환해 체감 성능을 개선한 과정을 정리합니다."
 date: "2026-01-05"
 tags: ["React"]
 published: true

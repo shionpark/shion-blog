@@ -1,6 +1,6 @@
 ---
 title: "프롭 드릴링(Props Drilling)은 지양해야 하는가?"
-description: ""
+description: "프롭 드릴링의 장단점을 분석하고 Context API, Redux 등 상태 관리 대안과 실무 적용 기준을 정리합니다."
 date: "2024-11-19"
 tags: []
 published: true

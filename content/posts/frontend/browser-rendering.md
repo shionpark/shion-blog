@@ -1,6 +1,6 @@
 ---
 title: "주소창에 URL을 입력하면 브라우저에서 어떤 일이 벌어질까?"
-description: ""
+description: "URL 입력부터 DNS 조회, TCP 연결, HTTP 요청, 브라우저 렌더링까지 페이지가 화면에 그려지는 전 과정을 정리합니다."
 date: "2025-07-04"
 tags: []
 published: true

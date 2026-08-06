@@ -1,6 +1,6 @@
 ---
 title: "CI/CD 환경 구축"
-description: ""
+description: "Next.js 프로젝트의 초기 환경 설정부터 GitHub Actions CI, Vercel 배포까지 CI/CD 파이프라인 구축 과정을 정리합니다."
 date: "2025-07-30"
 tags: []
 published: true

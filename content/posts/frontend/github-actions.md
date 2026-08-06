@@ -1,6 +1,6 @@
 ---
 title: "GitHub Actions와 테스트 기반 개발 환경 구축기"
-description: ""
+description: "GitHub Actions로 pnpm 기반 테스트 자동화 워크플로우를 구축하며 겪은 에러와 해결 과정을 정리합니다."
 date: "2025-07-13"
 tags: ["CI/CD"]
 published: true

@@ -1,6 +1,6 @@
 ---
 title: "FSD는 만병 통치약이 아니다"
-description: ""
+description: "팀에 FSD 아키텍처를 제안하며 겪은 과정과 도메인 기반 폴더 구조와의 차이를 돌아봅니다."
 date: "2025-12-22"
 tags: []
 published: true

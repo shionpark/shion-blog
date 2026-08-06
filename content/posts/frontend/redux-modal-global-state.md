@@ -1,6 +1,6 @@
 ---
 title: "Redux를 활용한 모달 전역 상태 관리"
-description: ""
+description: "Redux Toolkit으로 모달 전역 상태를 관리하는 Store, Slice, Dispatch의 구성과 단계별 구현 과정을 정리합니다."
 date: "2025-07-04"
 tags: []
 published: true

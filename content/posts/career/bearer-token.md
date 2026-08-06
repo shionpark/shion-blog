@@ -1,6 +1,6 @@
 ---
 title: "Bearer Token을 활용한 로그인 인증 및 접근 권한 관리 방법"
-description: ""
+description: "Bearer 토큰 기반 인증 흐름, 토큰 갱신 로직, 저장 위치별 보안 고려사항과 접근 권한 관리 전략을 정리합니다."
 date: "2025-03-23"
 tags: []
 published: true

@@ -1,6 +1,6 @@
 ---
 title: "Next.js는 왜 Tailwind를 권장할까?"
-description: ""
+description: "Next.js가 Tailwind CSS를 권장하는 이유를 SSR 호환성, 정적 최적화, 개발 경험 관점에서 분석합니다."
 date: "2025-07-04"
 tags: []
 published: true
