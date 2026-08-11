@@ -7,61 +7,72 @@ import type { PostMeta } from "@/types/post";
 
 type PostListFilterableProps = {
   posts: PostMeta[];
-  allTags: string[];
 };
 
-const DEFAULT_VISIBLE_TAG_COUNT = 12;
+/* 디렉토리 카테고리를 탭으로 매핑 */
+type CategoryTab = {
+  key: string;
+  label: string;
+  /** 이 탭에 포함되는 디렉토리 카테고리들. 비어있으면 전체 */
+  categories: string[];
+};
 
-export function PostListFilterable({ posts, allTags }: PostListFilterableProps) {
+const CATEGORY_TABS: CategoryTab[] = [
+  { key: "all", label: "전체", categories: [] },
+  { key: "design", label: "Design", categories: ["design"] },
+  { key: "frontend", label: "Frontend", categories: ["frontend"] },
+  { key: "backend", label: "Backend", categories: ["backend", "analytics"] },
+  { key: "career", label: "Career", categories: ["career", "general"] },
+];
+
+export function PostListFilterable({ posts }: PostListFilterableProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const activeTag = searchParams.get("tag");
+  const activeTab = searchParams.get("tab") ?? "all";
   const [searchQuery, setSearchQuery] = useState("");
-  const [showAllTags, setShowAllTags] = useState(false);
 
-  // 태그별 글 수 계산 + 빈도순 정렬
-  const tagsWithCount = useMemo(() => {
-    const countMap = new Map<string, number>();
-    for (const post of posts) {
-      for (const tag of post.tags) {
-        countMap.set(tag, (countMap.get(tag) ?? 0) + 1);
+  /* 탭별 글 수 계산 */
+  const tabCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const tab of CATEGORY_TABS) {
+      if (tab.categories.length === 0) {
+        counts[tab.key] = posts.length;
+      } else {
+        counts[tab.key] = posts.filter((post) =>
+          tab.categories.includes(post.category)
+        ).length;
       }
     }
-    return allTags
-      .map((tag) => ({ name: tag, count: countMap.get(tag) ?? 0 }))
-      .sort((tagA, tagB) => tagB.count - tagA.count);
-  }, [posts, allTags]);
+    return counts;
+  }, [posts]);
 
-  const hasHiddenTags = tagsWithCount.length > DEFAULT_VISIBLE_TAG_COUNT;
+  /* 탭으로 필터링 */
+  const tabFilteredPosts = useMemo(() => {
+    const currentTab = CATEGORY_TABS.find((tab) => tab.key === activeTab);
+    if (!currentTab || currentTab.categories.length === 0) return posts;
+    return posts.filter((post) => currentTab.categories.includes(post.category));
+  }, [posts, activeTab]);
 
+  /* 검색 필터 */
   const filteredPosts = useMemo(() => {
-    return posts.filter((post) => {
-      // 태그 필터
-      if (activeTag && !post.tags.includes(activeTag)) return false;
+    if (!searchQuery) return tabFilteredPosts;
+    const query = searchQuery.toLowerCase();
+    return tabFilteredPosts.filter(
+      (post) =>
+        post.title.toLowerCase().includes(query) ||
+        post.description.toLowerCase().includes(query) ||
+        post.tags.some((tag) => tag.toLowerCase().includes(query))
+    );
+  }, [tabFilteredPosts, searchQuery]);
 
-      // 검색 필터
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        return (
-          post.title.toLowerCase().includes(query) ||
-          post.description.toLowerCase().includes(query) ||
-          post.tags.some((tag) => tag.toLowerCase().includes(query))
-        );
-      }
-
-      return true;
-    });
-  }, [posts, activeTag, searchQuery]);
-
+  /* 연도별 그룹 */
   const postsByYear = useMemo(() => {
     const groups: Record<string, PostMeta[]> = {};
-
     for (const post of filteredPosts) {
       const year = new Date(post.date).getFullYear().toString();
       if (!groups[year]) groups[year] = [];
       groups[year].push(post);
     }
-
     return groups;
   }, [filteredPosts]);
 
@@ -69,15 +80,9 @@ export function PostListFilterable({ posts, allTags }: PostListFilterableProps) 
     (yearA, yearB) => Number(yearB) - Number(yearA)
   );
 
-  function handleTagClick(tag: string) {
-    const params = new URLSearchParams(searchParams.toString());
-
-    if (activeTag === tag) {
-      params.delete("tag");
-    } else {
-      params.set("tag", tag);
-    }
-
+  function handleTabClick(tabKey: string) {
+    const params = new URLSearchParams();
+    if (tabKey !== "all") params.set("tab", tabKey);
     const queryString = params.toString();
     router.push(queryString ? `/posts?${queryString}` : "/posts", {
       scroll: false,
@@ -86,92 +91,55 @@ export function PostListFilterable({ posts, allTags }: PostListFilterableProps) 
 
   return (
     <>
-      {/* 검색 */}
-      <div className="mb-6">
-        <input
-          type="text"
-          placeholder="글 검색..."
-          value={searchQuery}
-          onChange={(event) => setSearchQuery(event.target.value)}
-          className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-colors text-sm"
-        />
-      </div>
-
-      {/* 태그 필터 */}
-      <div className="flex flex-wrap gap-2 mb-8">
-        {tagsWithCount.slice(0, DEFAULT_VISIBLE_TAG_COUNT).map(({ name, count }) => (
+      {/* 카테고리 탭 */}
+      <div className="flex flex-wrap gap-1 mb-6">
+        {CATEGORY_TABS.map((tab) => (
           <button
-            key={name}
-            onClick={() => handleTagClick(name)}
-            className={`text-xs px-3 py-1.5 rounded-full border transition-colors cursor-pointer ${
-              activeTag === name
-                ? "bg-accent text-white border-accent"
-                : "bg-muted text-muted-foreground border-border hover:border-accent/50"
+            key={tab.key}
+            onClick={() => handleTabClick(tab.key)}
+            className={`text-sm px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
+              activeTab === tab.key
+                ? "bg-foreground text-background font-medium"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted"
             }`}
           >
-            {name}
-            <span className="ml-1 opacity-60">{count}</span>
+            {tab.label}
+            <span className="ml-1.5 text-xs opacity-50">{tabCounts[tab.key]}</span>
           </button>
         ))}
-        {hasHiddenTags && (
-          <button
-            onClick={() => setShowAllTags((prev) => !prev)}
-            className="text-xs px-3 py-1.5 rounded-full border border-border text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-          >
-            {showAllTags
-              ? "접기"
-              : `+${tagsWithCount.length - DEFAULT_VISIBLE_TAG_COUNT}개 더보기`}
-          </button>
-        )}
-        {showAllTags &&
-          tagsWithCount.slice(DEFAULT_VISIBLE_TAG_COUNT).map(({ name, count }) => (
-            <button
-              key={name}
-              onClick={() => handleTagClick(name)}
-              className={`text-xs px-3 py-1.5 rounded-full border transition-colors cursor-pointer ${
-                activeTag === name
-                  ? "bg-accent text-white border-accent"
-                  : "bg-muted text-muted-foreground border-border hover:border-accent/50"
-              }`}
-            >
-              {name}
-              <span className="ml-1 opacity-60">{count}</span>
-            </button>
-          ))}
-        {activeTag && (
-          <button
-            onClick={() => {
-              const params = new URLSearchParams(searchParams.toString());
-              params.delete("tag");
-              router.push("/posts", { scroll: false });
-            }}
-            className="text-xs px-3 py-1.5 rounded-full border border-border text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-          >
-            초기화 ✕
-          </button>
-        )}
+      </div>
+
+      {/* 검색 */}
+      <div className="mb-8">
+        <input
+          type="text"
+          placeholder="검색..."
+          value={searchQuery}
+          onChange={(event) => setSearchQuery(event.target.value)}
+          className="w-full px-3.5 py-2 rounded-md border border-border bg-background text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-foreground/20 transition-colors text-sm"
+        />
       </div>
 
       {/* 글 목록 */}
       {years.length > 0 ? (
         years.map((year) => (
-          <section key={year} className="mb-10">
-            <h2 className="text-sm font-medium text-muted-foreground mb-4">
+          <section key={year} className="mb-8">
+            <h2 className="text-xs font-medium text-muted-foreground/60 mb-3">
               {year}
             </h2>
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col">
               {postsByYear[year].map((post) => (
                 <article key={post.slug}>
                   <Link
                     href={`/posts/${post.slug}`}
-                    className="group flex items-baseline justify-between gap-4"
+                    className="group flex items-baseline justify-between gap-4 py-1.5"
                   >
-                    <h3 className="font-medium group-hover:text-accent transition-colors">
+                    <h3 className="text-[15px] group-hover:opacity-50 transition-opacity">
                       {post.title}
                     </h3>
                     <time
                       dateTime={post.date}
-                      className="text-sm text-muted-foreground shrink-0"
+                      className="text-xs text-muted-foreground shrink-0"
                     >
                       {new Date(post.date).toLocaleDateString("ko-KR", {
                         month: "short",
@@ -185,16 +153,18 @@ export function PostListFilterable({ posts, allTags }: PostListFilterableProps) 
           </section>
         ))
       ) : (
-        <p className="text-muted-foreground">
-          {searchQuery || activeTag
-            ? "검색 결과가 없습니다."
-            : "아직 작성된 글이 없습니다."}
+        <p className="text-sm text-muted-foreground py-8">
+          {activeTab === "design"
+            ? "디자인 케이스 스터디를 준비 중입니다."
+            : searchQuery
+              ? "검색 결과가 없습니다."
+              : "아직 작성된 글이 없습니다."}
         </p>
       )}
 
-      {/* 결과 수 표시 */}
-      {(searchQuery || activeTag) && filteredPosts.length > 0 && (
-        <p className="text-xs text-muted-foreground mt-4">
+      {/* 결과 수 */}
+      {searchQuery && filteredPosts.length > 0 && (
+        <p className="text-xs text-muted-foreground mt-2">
           {filteredPosts.length}개의 글
         </p>
       )}
