@@ -16,7 +16,7 @@ export function Header() {
           href="/"
           className="text-lg font-bold tracking-tight hover:opacity-80 transition-opacity"
         >
-          Shion
+          Seoyoung
         </Link>
 
         {/* 데스크탑 내비게이션 */}
