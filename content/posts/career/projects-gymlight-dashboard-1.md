@@ -162,3 +162,5 @@ ApexCharts의 타입이나 옵션 구조를 이해하지 않으면 차트를 수
 - 차트 유형별 컴포넌트 분리: BarChart, PieChart, LineChart 등으로 나누어 구현
 - 내부적으로 공통 옵션을 적용하고, 최소한의 props만으로도 차트를 생성 가능하게 변경
 필요 시 차트 유형과 대응되는 데이터를 일관되게 분리해 hooks, config, types로 구조화하는 방식을 도입할 수 있을 것이라 판단했다. 추후 팀 단위 협업을 고려해 공통 옵션 템플릿과 각 차트별 DSL(Data Specification Layer)을 만드는 방향으로 확장할 계획이다.
+
+> **다음 글:** [실제 데이터 기반 ApexCharts 차트 구현 기록](/posts/career/realtime-dashboard)

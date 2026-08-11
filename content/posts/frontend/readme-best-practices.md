@@ -3,7 +3,7 @@ title: "리드미에 어떤 내용이 들어가야 할까?"
 description: "프로젝트 리드미에 포함해야 할 항목과 브랜치 전략, 테스트 자동화 등 사전 환경 구성 방법을 정리합니다."
 date: "2025-07-14"
 tags: []
-published: true
+published: false
 ---
 
 1. Vitest 도입

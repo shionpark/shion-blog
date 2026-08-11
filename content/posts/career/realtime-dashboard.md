@@ -6,10 +6,7 @@ tags: ["apexCharts", "Dashboard"]
 published: true
 ---
 
-![통계관리 페이지 > ‘대시보드’ 탭 화면
-회원 통계 차트는 ‘회원 통계’ 탭 클릭시 조회 가능](https://prod-files-secure.s3.us-west-2.amazonaws.com/7b93557b-0386-4356-9156-9b6885e8c9eb/c32431cd-d9e1-4a8b-a88d-b174934f5176/image.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB4664SISW3TJ%2F20260805%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20260805T152902Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEF4aCXVzLXdlc3QtMiJIMEYCIQCKM4XBmEdoOlVP5oISj%2BeJzVXRYT2yGJ7KLkuv3Ffn0QIhAI8D4u1uMJVwwjrNs4ALslDa7g4GgMStkCr86xiIPtrWKv8DCCcQABoMNjM3NDIzMTgzODA1Igxr5WoU2pu13fnaNKgq3AOXnot9sA5gHBbV3PsT5qrs7DktxGZFpuY%2FjDtkTKxvKvIpIXXNQoRm77NMUeSZ4nquh%2FOPl7mAJeffKENnwDDXQvJPshT7iZveTAp%2F0lAETY6NFaiaX58ByuPVOO%2BbhMJX8xOn%2F1rzibHWuaIu5WlTfV8S2vYIMtrgQFT0npJqw2RudkXjhm2Bsf2k8VGzzHFdg2h4OErPGg9TXMz58hGqJYkNV1o9hwWi%2FxHhsyJPazTyXFDo0xs%2FKfaqdeN20h40J%2Brn3XoM9v1nGKUINtdOxxmFtLH%2FoGn93DPAr7akGOA9k5lGdVcNv5CyTGdScVSqi3ffwfJfhdbYdCdFK%2BFPZqJNK354BLn%2BqAoiyshioxpCin4EW0ZnJqSteW02mGMI%2BiIezFSR9FvIPpxUOm1Hixs0qd3q791%2FGRGZMgZq%2BhcTfTcj7qq2n8yFkd9UZH7g0LwGcYYnIMX33DJ4w4zD5FYTBYm2uSto7wcDFmmVUukGmzfUE2P0ORzcawvotjP%2Fg8gdeDhkgRBBJlqwlP2%2BtdSGG6z3ysUqkHIG519fpzYLfNjMC5mpLNdKXtZr3SQH9hy0nyKlTZX4uqsL69TUeOVoPkhgDZeQFTB8NCMHSg6tI0TcDLIg566JvzCJjM3TBjqkAYVXAUU83tIMd8ysMjDXP9%2FmpVhDBogabhorTerauwN1Fa4RHJTNzHpye5Mc%2B6vQFNwIugdNNQtvDO7fEzfML2g5cAsk%2BWbEOGo6x9fBR%2FnLiuWNxbufMsX3DusEuNRtVe9hVqXRlNwS0mkULQGBezKFSa%2FuY0UcodOXjf2KDrvpIRkrzCOWe3nCPtx%2BQhUfQagSFPUJ9DgS5FzMOnWYEmn4zm7c&X-Amz-Signature=813c9bf60fd8c920e70b168fce2a112d3152c2cd958ce252a472987047fab54d&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject)
-
-[앞선 글](/2fa1694f70d74ec0951b317f52beb127)에서 샘플 데이터로 시각화 구조를 먼저 검증한 뒤, 실제 데이터를 기반으로 개별 차트 컴포넌트를 구현했다. 다양한 비즈니스 로직이 적용된 차트들은 실제 요구사항에 대응하는 방식으로 구성되었고, 반복적인 패턴은 가능한 컴포넌트화하여 추후 재사용 가능성을 고려했다.
+[앞선 글](/posts/career/projects-gymlight-dashboard-1)에서 샘플 데이터로 시각화 구조를 먼저 검증한 뒤, 실제 데이터를 기반으로 개별 차트 컴포넌트를 구현했다. 다양한 비즈니스 로직이 적용된 차트들은 실제 요구사항에 대응하는 방식으로 구성되었고, 반복적인 패턴은 가능한 컴포넌트화하여 추후 재사용 가능성을 고려했다.
 
 ## 실제 데이터 기반 차트 구현
 

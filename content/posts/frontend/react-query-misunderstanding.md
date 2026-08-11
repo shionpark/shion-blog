@@ -188,3 +188,5 @@ export interface UseBranchSelectReturns {
 - React Query는 서버 상태 관리를 위한 전문화된 도구로, 캐싱과 데이터 동기화를 자동으로 처리
 - 캐싱 메커니즘으로 인해 불필요한 API 요청을 방지하고 성능을 최적화
 - 유효성 검증, 자동 리페치, 옵션 기반 상태 관리 등 다양한 기능을 제공해 개발 효율성을 높임
+
+> **관련 글:** [서버와의 통신 흐름 정리: HTTP 요청부터 React Query 적용까지](/posts/frontend/network-axios-react-query) — fetch → Axios → React Query 도입 과정
