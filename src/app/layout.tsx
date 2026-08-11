@@ -19,23 +19,23 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://shion-blog.vercel.app"),
   title: {
-    default: "Shion Park",
-    template: "%s | Shion Park",
+    default: "Seoyoung Park",
+    template: "%s | Seoyoung Park",
   },
   description:
     "데이터와 AI를 활용해 제품과 운영을 자동화하는 풀스택 개발자",
   openGraph: {
-    title: "Shion Park",
+    title: "Seoyoung Park",
     description:
       "데이터와 AI를 활용해 제품과 운영을 자동화하는 풀스택 개발자",
     url: "https://shion-blog.vercel.app",
-    siteName: "Shion Park",
+    siteName: "Seoyoung Park",
     locale: "ko_KR",
     type: "website",
   },
   twitter: {
     card: "summary",
-    title: "Shion Park",
+    title: "Seoyoung Park",
     description:
       "데이터와 AI를 활용해 제품과 운영을 자동화하는 풀스택 개발자",
   },
