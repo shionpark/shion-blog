@@ -8,7 +8,7 @@ export function WebsiteJsonLd() {
     "@type": "WebSite",
     name: "Seoyoung Park",
     url: SITE_URL,
-    description: "제품의 경험을 설계하고 직접 만드는 디자인 엔지니어",
+    description: "사용자 경험 설계부터 구현·개선까지, 제품이 더 나아지는 과정을 만드는 프로덕트 엔지니어",
     author: {
       "@type": "Person",
       name: "박서영",
@@ -55,7 +55,7 @@ export function PersonJsonLd() {
     name: "박서영",
     alternateName: "Seoyoung Park",
     url: SITE_URL,
-    jobTitle: "디자인 엔지니어",
+    jobTitle: "프로덕트 엔지니어",
     sameAs: ["https://github.com/shionpark"],
     knowsAbout: [
       "React",

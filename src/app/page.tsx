@@ -33,7 +33,7 @@ const SOCIAL_LINKS = [
   },
 ] as const;
 
-/* 홈페이지에 보여줄 프로젝트별 한 줄 설명 (디자인 엔지니어 관점) */
+/* 홈페이지에 보여줄 프로젝트별 한 줄 설명 (프로덕트 엔지니어 관점) */
 const PROJECT_SHORT_DESC: Record<string, string> = {
   "intalk-care": "매칭 스코어 UX · 7단계 온보딩 설계",
   "intalk-partners": "AI 교육 플랫폼 프론트엔드",
@@ -59,7 +59,7 @@ export default function Home() {
         />
         <h1 className="text-base font-bold mb-2">Seoyoung Park</h1>
         <p className="text-[15px] leading-[1.65] mb-5">
-          제품의 경험을 설계하고 직접 만드는 디자인 엔지니어입니다.
+          사용자 경험 설계부터 구현·개선까지, 제품이 더 나아지는 과정을 만드는 프로덕트 엔지니어입니다.
           복잡한 도메인을 쉬운 인터페이스로, 반복되는 작업을 자동화로 바꿉니다.
         </p>
         <div className="flex gap-3.5">
