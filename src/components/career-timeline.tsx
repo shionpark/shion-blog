@@ -9,10 +9,10 @@ type CareerEntry = {
 const CAREER: CareerEntry[] = [
   {
     company: "인톡",
-    role: "풀스택 엔지니어",
+    role: "프로덕트 엔지니어",
     period: "2026.03 ~ 현재",
     description:
-      "보험 설계사 매칭 플랫폼과 AI 교육 플랫폼의 설계·구현. 매칭 스코어 시스템, 7단계 온보딩, AI 콘텐츠 자동화, 캠페인 분석 엔진.",
+      "보험설계사 육성 SaaS 플랫폼의 프론트엔드·백엔드·AI 자동화·분석 인프라를 단독 운영. 퍼널 지표 설계, LLM 기반 콘텐츠 자동화, 보험 조회 마이크로서비스 구축.",
     isCurrent: true,
   },
   {
@@ -20,21 +20,23 @@ const CAREER: CareerEntry[] = [
     role: "프론트엔드 엔지니어",
     period: "2023.12 ~ 2025.04",
     description:
-      "다지점 헬스장 관리 대시보드 설계·개발. 복잡한 권한 구조를 직관적 UI로 풀고, 러닝 크루 탐색 필터 인터랙션 설계.",
+      "다지점 헬스장 관리 시스템의 프론트엔드 개발. 분산된 비즈니스 로직 통합, 조회 시점 분리를 통한 렌더링 최적화, 역할 기반 접근 제어 구조 설계.",
     isCurrent: false,
   },
   {
     company: "미리디",
     role: "데이터 분석가",
     period: "2022.05 ~ 2022.08",
-    description: "사용자 행동 데이터 분석과 인사이트 도출. 분석 파이프라인 구축.",
+    description:
+      "미리캔버스의 광고 성과 분석을 위한 핵심 지표 정의. 네이버·구글·다음 광고 유입과 주문 데이터를 조합해 매출 기여도 분석.",
     isCurrent: false,
   },
   {
     company: "벡스인텔리전스",
     role: "기획 및 분석",
     period: "2020.12 ~ 2022.04",
-    description: "서비스 기획과 데이터 기반 제품 개선.",
+    description:
+      "AI 기반 기업 미래성장지수 모델 설계. NIA 빅데이터 센터 구축 사업 기획.",
     isCurrent: false,
   },
 ];

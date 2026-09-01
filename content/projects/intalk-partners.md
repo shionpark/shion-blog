@@ -1,7 +1,7 @@
 ---
 title: "인톡 파트너스 2.0"
-description: "보험 전문가를 위한 AI 교육 플랫폼. 외부 API 연동, AI 콘텐츠 자동화, 캠페인 분석 엔진을 설계·구현했습니다."
-role: "풀스택 엔지니어"
+description: "보험설계사 육성 SaaS 플랫폼. 퍼널 지표 설계, LLM 기반 콘텐츠 자동화, 보험 조회 마이크로서비스를 단독 구축했습니다."
+role: "프로덕트 엔지니어"
 period: "2026.03 ~ 현재"
 stack: ["Next.js", "React", "NestJS", "PostgreSQL", "Redis", "Claude API"]
 url: "https://www.intalkpartners.com"

@@ -1,7 +1,7 @@
 ---
 title: "인톡 케어"
 description: "보험 설계사 매칭 플랫폼. 양면 마켓플레이스의 공급 측 전체를 설계·구현했습니다."
-role: "풀스택 엔지니어"
+role: "프로덕트 엔지니어"
 period: "2026.06 ~ 현재"
 stack: ["React", "Express", "Prisma", "PostgreSQL", "Socket.IO", "AWS EC2", "CloudFront"]
 url: "https://intalkcare.com"

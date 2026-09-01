@@ -36,7 +36,7 @@ const SOCIAL_LINKS = [
 /* 홈페이지에 보여줄 프로젝트별 한 줄 설명 (프로덕트 엔지니어 관점) */
 const PROJECT_SHORT_DESC: Record<string, string> = {
   "intalk-care": "매칭 스코어 UX · 7단계 온보딩 설계",
-  "intalk-partners": "AI 교육 플랫폼 프론트엔드",
+  "intalk-partners": "퍼널 지표 설계 · AI 콘텐츠 자동화",
   "gymlight-manager": "다지점 관리 대시보드",
   "run-fit": "러닝 크루 탐색 · 필터 인터랙션",
 };
