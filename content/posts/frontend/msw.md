@@ -1,7 +1,7 @@
 ---
 title: "MSW로 API 모킹 환경 구축하기"
-description: "Mock Service Worker로 백엔드 없이 개발하고, 지연·에러·빈 데이터 같은 케이스를 재현하는 설정을 정리한다."
-date: "2025-08-31"
+description: "Mock Service Worker로 백엔드 없이 개발하고 지연·에러·빈 데이터를 재현하는 설정, 그리고 webpack 배포에서만 목 데이터가 뜨지 않던 두 가지 원인."
+date: "2026-02-22"
 tags: ["MSW", "테스트", "API", "React"]
 published: true
 ---
@@ -179,3 +179,13 @@ test("에러 발생 시 에러 메시지를 표시한다", async () => {
   expect(await screen.findByText("에러가 발생했습니다")).toBeInTheDocument();
 });
 ```
+
+## 배포하니 목 데이터가 뜨지 않았다
+
+Gymlight를 개인 데모로 다시 배포하면서 MSW를 붙였다. 백엔드 없이 데모 계정으로 돌아가야 해서였다. 이 프로젝트는 Yarn Berry 모노레포에 webpack 빌드라서 위 Vite 예시 그대로는 되지 않았고, 로컬에서는 되던 것이 Vercel에서만 목 데이터가 뜨지 않았다. 원인은 둘이었다.
+
+**1. 서비스 워커 파일이 빌드 결과에 없었다.** `msw init`이 만든 `public/mockServiceWorker.js`를 webpack이 `dist`로 옮겨 주지 않았다. `CopyPlugin`의 경로를 절대경로로 바꿨고(2월 4일), 그래도 빠져서 `public` 폴더 전체를 복사하도록 바꾸고 다른 webpack 설정에도 같은 항목을 넣었다(2월 12일).
+
+**2. 배포 환경에서 MSW가 켜지지 않았다.** MSW를 켤지 말지를 환경변수로 정하는데, `dotenv-webpack`은 기본값으로 `.env` 파일만 읽는다. Vercel에 설정한 값은 시스템 환경변수라 읽히지 않았다. `new Dotenv({ systemvars: true })`로 바꿔서 해결했다(2월 22일).
+
+로컬에서 되는 걸로는 부족하다. 배포 빌드에 worker 파일이 들어갔는지, 환경변수가 주입됐는지는 배포 환경에서 따로 확인해야 한다.
