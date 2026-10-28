@@ -7,7 +7,7 @@ stack: ["Next.js", "React", "TypeScript"]
 url: "https://run-fit-eight.vercel.app/sessions"
 github: "https://github.com/runfit26/run-fit"
 published: true
-order: 7
+order: 6
 ---
 
 지역 기반으로 러닝 크루와 세션을 탐색하는 플랫폼입니다.
