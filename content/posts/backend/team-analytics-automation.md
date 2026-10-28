@@ -3,7 +3,7 @@ title: "Obsidian + Astro로 팀 분석 리포트 자동 배포하기"
 description: "4인 스타트업에서 주간 분석 리포트 작성·공유의 비효율을 자동화한 과정. Google Sheets API 수집, Astro 정적 사이트 배포, Notion 전환, R&D 공고 크롤러까지."
 date: "2026-08-24"
 tags: ["자동화", "인톡 파트너스", "Astro", "DX"]
-published: true
+published: false
 ---
 
 ## 배경

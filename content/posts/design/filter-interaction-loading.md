@@ -1,110 +1,54 @@
 ---
-title: "필터를 바꿀 때마다 화면이 멈추는 문제 — URL SSOT와 Suspense 경계 분리"
-description: "Run Fit에서 필터 상태를 URL로 옮기고 섹션별 Suspense Boundary를 나눠 체감 속도를 높인 과정."
+title: "세션 필터를 URL로 옮기고 크루 상세를 섹션별로 쪼갰다"
+description: "Run Fit에서 세션 필터 상태를 URL 쿼리로 옮기고, 크루 상세 페이지의 Suspense를 섹션 단위로 나눈 기록."
 date: "2026-08-13"
 tags: ["UX 설계", "Run Fit", "로딩"]
 published: true
 ---
 
-## 배경
+## 문제 두 가지
 
-Run Fit은 지역 기반으로 러닝 크루와 세션을 탐색하는 플랫폼이다. 지역, 요일, 시간대 등 필터를 조합해 원하는 크루와 세션을 찾는 구조인데 두 가지 문제가 있었다.
+Run Fit은 지역 기반으로 러닝 크루와 세션을 찾는 서비스다. 세션 목록에는 정렬, 레벨, 지역, 날짜, 시간 필터가 있다. 이 필터에 문제가 두 가지 있었다.
 
-**필터 상태가 URL에 없었다.** 필터를 `useState`로 관리하고 있어서 URL을 공유하면 필터가 초기화됐고 뒤로가기를 누르면 이전 검색 조건이 날아갔다. 사용자 입장에서 "아까 본 조건으로 돌아가기"가 불가능했다.
+**필터가 URL에 없었다.** URL을 공유하면 필터가 풀리고, 뒤로 가면 이전 검색 조건이 사라졌다.
 
-**필터를 바꿀 때마다 전체 화면이 멈췄다.** 하나의 Suspense 안에 여러 데이터 요청이 묶여있어서 빠르게 응답하는 데이터까지 느린 데이터가 올 때까지 스피너 뒤에 숨었다.
+**크루 상세가 한꺼번에 떴다.** 한 Suspense 안에 여러 요청이 묶여 있어서 빨리 오는 데이터도 가장 느린 데이터가 올 때까지 스피너 뒤에 있었다.
 
-## 필터 상태를 URL로 옮기기
+## 필터의 기준을 URL로
 
-`useSearchParams`를 필터 상태의 단일 진실 원천(SSOT)으로 정했다. 컴포넌트 내부에 필터 상태를 두지 않고 필터 변경 시 URL 쿼리 파라미터를 직접 업데이트한다.
+12월 18일에 `useSessionFilters` 훅과 `SessionFilterBar`를 만들었다. 필터 상태를 따로 들고 있지 않고, 현재 필터는 `useSearchParams()`에서 계산한다.
 
 ```typescript
-// hooks/session/useSessionFilters.ts
-export const useSessionFilters = () => {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const pathname = usePathname();
+const filters: SessionFilterState = useMemo(() => {
+  // city, district, dateFrom, dateTo, timeFrom, timeTo, level, sort를
+  // searchParams에서 읽어 필터 객체로 만든다
+  ...
+}, [searchParams]);
 
-  // URL에서 현재 필터 파생 — 별도 상태 없음
-  const selectedDays = useMemo(
-    () => searchParams.getAll('day') as DayOfWeek[],
-    [searchParams],
-  );
-
-  const selectedTimeSlots = useMemo(
-    () => searchParams.getAll('time') as TimeSlot[],
-    [searchParams],
-  );
-
-  const applyFilters = useCallback(
-    (filters: SessionFilterState) => {
-      const params = new URLSearchParams();
-      filters.days.forEach((day) => params.append('day', day));
-      filters.timeSlots.forEach((time) => params.append('time', time));
-      // ...지역 필터도 동일하게
-      router.push(`${pathname}?${params.toString()}`, { scroll: false });
-    },
-    [router, pathname],
-  );
-
-  return { selectedDays, selectedTimeSlots, applyFilters };
+const applyFilters = (next: SessionFilterState) => {
+  const params = new URLSearchParams();
+  if (level) params.set('level', level);
+  if (sort) params.set('sort', sort);
+  // 지역은 city/district를 쌍으로 append
+  ...
+  router.push(`/sessions?${params.toString()}`);
 };
 ```
 
-**URL(SearchParams)을 SSOT로 고정**하고 컴포넌트는 URL에서 현재 필터를 읽기만 한다. `useMemo`로 파생 상태를 만들기 때문에 URL이 바뀌면 필터가 자동으로 갱신된다.
+URL이 바뀌면 `filters`가 다시 계산되고, API에 보낼 쿼리 객체(`queryFilters`)도 여기서 만든다. 지역은 시/도와 구가 짝이라 `city`와 `district`를 같은 순서로 쌓고, 읽을 때 둘의 개수가 같을 때만 유효한 지역으로 본다. 이렇게 하면 URL을 보내면 같은 조건이 재현되고, 뒤로 가기에 필터 상태가 남는다.
 
-이렇게 하면 공유(URL을 보내면 같은 필터 조건 재현), 뒤로가기(브라우저 히스토리에 필터 상태가 쌓임), 북마크(자주 쓰는 필터 조합 저장)가 웹 기본 동작 그대로 돌아간다.
+대가는 직렬화와 파싱 코드다. `useState`에 담으면 몇 줄이면 될 것을 날짜와 시간, 지역까지 문자열로 오가는 코드를 썼다. 공유할 수 있어야 하는 상태라서 감수했다.
 
-`scroll: false` 옵션을 넣은 건 필터를 바꿨는데 페이지 맨 위로 튀어오르면 탐색 흐름이 끊기기 때문이다.
+## 모달 안의 임시 상태
 
-## 필터 모달의 임시 상태 분리
+필터는 모달에서 고른다. 모달 안에서 조건을 바꿀 때마다 URL이 바뀌면 안 되고, "적용"을 눌렀을 때 한 번만 바뀌어야 한다. 12월 19일에 `SessionFilterProvider`를 만들어 모달 안에서는 `draft` 상태를 쓰고, 적용할 때 `applyFilters`로 URL에 반영한다. URL의 필터가 바뀌면(`initialFilters`) `draft`도 거기에 맞춰 다시 채운다.
 
-필터 UI가 모달 형태인데 모달 내부에서 필터를 조합하는 동안 URL이 계속 바뀌면 안 된다. 모달을 닫기 전에 여러 필터를 동시에 조정하고 "적용" 버튼을 누를 때 한 번에 URL을 업데이트해야 한다.
+## 크루 상세를 섹션별로
 
-모달 내부는 임시 상태(draft)로 분리했다. 필터 모달이 열릴 때 현재 URL의 필터를 임시 상태로 복사하고 "적용" 시 `applyFilters`를 호출해서 URL을 한 번에 갱신한다. 임시 변경과 실제 적용이 분리되면서 FilterBar와 Modal의 역할도 나뉘었다.
+12월 29일에 크루·세션 페이지에 ErrorBoundary와 Suspense를 넣었고, 1월 5일에 크루 상세 페이지를 섹션별 Suspense로 쪼갰다(`CrewDetailContent`, `CompletedSessions`, `CrewReviews` 등과 각각의 스켈레톤).
 
-## 섹션별 Suspense Boundary 분리
+크루 정보와 멤버는 먼저 보이고, 모집 중 세션, 완료된 세션, 리뷰는 각자 스켈레톤을 보이다가 준비되면 채워진다. 느린 섹션이 빠른 섹션을 붙잡지 않는다.
 
-전체 페이지를 하나의 Suspense로 감싸는 대신, 데이터를 가져오는 각 섹션을 독립적인 Suspense Boundary로 분리했다. 크루 상세 페이지를 예로 들면 이런 구조다:
+`useSuspenseQuery`를 쓰는 건 팀원이 12월 말에 `@suspensive/react-query`를 도입해 둔 위에서 한 작업이다. 쿼리 쪽(`sessionQueries`, `placeholderData`, `staleTime`)도 다른 팀원이 만든 것이다. 나는 경계를 어디에 둘지와 스켈레톤을 맡았다.
 
-```text
-Page (Suspense)
-└─ CrewDetailContent
-   ├─ Crew Info (useSuspenseQuery)
-   ├─ Members (useSuspenseQuery)
-   ├─ Suspense → RecruitingSessions (useSuspenseInfiniteQuery)
-   ├─ Suspense → CompletedSessions (useSuspenseQuery)
-   └─ Suspense (key={currentPage}) → CrewReviews (useSuspenseQuery)
-```
-
-기존에는 모든 데이터가 한 번에 로딩되어 한 섹션의 데이터가 느리면 전체 페이지가 늦게 렌더링됐다. 분리 후에는 크루 정보와 멤버 목록이 먼저 보이고 모집 중인 세션이나 리뷰는 각각 스켈레톤을 보여주다가 데이터가 준비되면 채워진다.
-
-Suspensive 라이브러리의 `useSuspenseQuery`를 도입해 데이터 로딩을 선언적으로 처리했다. 기존 `useQuery` + `isLoading` 분기 대신, 컴포넌트가 데이터가 있다는 전제 아래 렌더링하고 로딩 상태는 상위 Suspense Boundary가 처리한다. 선택적 데이터(인증 필요, 조건부 로딩)에는 `useQuery + enabled`를 유지했다.
-
-## 필터 전환 시 깜빡임 방지
-
-필터를 바꿀 때 기존 목록이 사라지고 스켈레톤이 뜨는 게 거슬렸다. 데이터가 바뀌는 건 맞지만 이전 데이터를 보여주면서 새 데이터를 기다리는 편이 체감 속도가 낫다.
-
-TanStack Query의 `placeholderData` 옵션으로 해결했다:
-
-```typescript
-// api/queries/sessionQueries.ts
-export const sessionQueries = {
-  list: (filters: SessionFilterParams) => ({
-    queryKey: ['sessions', filters],
-    queryFn: () => fetchSessions(filters),
-    placeholderData: (previousData) => previousData,
-    staleTime: 1000 * 60,
-  }),
-};
-```
-
-`placeholderData: (previousData) => previousData`로 설정하면, 필터가 바뀌어도 이전 데이터가 자리를 지키고 있다가 새 데이터가 오면 교체된다. 사용자 눈에는 "필터를 바꿨더니 목록이 부드럽게 갱신됐다"로 보인다.
-
-`staleTime: 1000 * 60` (1분)으로 설정해서 같은 필터 조합으로 돌아왔을 때 1분 이내면 캐시된 데이터를 바로 보여준다. 전역 기본값은 `staleTime: 5 * 60 * 1000` (5분)으로 설정했고 변경 빈도가 높은 데이터만 더 짧은 주기를 따로 지정했다. `refetchOnWindowFocus: false`로 탭 전환 시 불필요한 재요청도 방지했다.
-
-## 트레이드오프
-
-URL SSOT 방식은 컴포넌트 상태 vs URL 상태의 트레이드오프가 있다. `useState`가 개발은 편하지만 공유·뒤로가기가 깨지고 URL은 웹 기본 동작을 살리는 대신 파싱·직렬화 코드가 늘어난다. 필터처럼 공유 가능해야 하는 상태는 URL에 두는 게 맞다고 판단했다.
-
-Suspense Boundary 위치 결정이 핵심 설계 판단이었다. 너무 넓으면(페이지 전체) 느린 데이터가 빠른 데이터를 블로킹하고 너무 좁으면(개별 컴포넌트마다) 스켈레톤이 산발적으로 나타나 시각적으로 산만하다. 사용자가 먼저 봐야 하는 정보 단위를 기준으로 경계를 그었다 — 크루 정보와 멤버는 즉시, 리뷰와 세션 목록은 독립적으로.
+경계 위치는 하나씩 정해야 했다. 페이지 전체를 감싸면 느린 데이터가 빠른 데이터를 막고, 컴포넌트마다 감싸면 스켈레톤이 흩어져 산만하다. 사용자가 먼저 봐야 하는 정보 단위로 나눴다. 크루 정보와 멤버가 먼저, 세션과 리뷰는 따로.
