@@ -83,7 +83,7 @@ export function getPostBySlug(slug: string) {
 }
 
 export function getPostSlugs(): string[] {
-  return getPostFiles().map((file) => file.slug);
+  return getAllPosts().map((post) => post.slug);
 }
 
 export function getAllTags(): string[] {
