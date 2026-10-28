@@ -1,33 +1,30 @@
 ---
-title: "인톡 파트너스 2.0"
-description: "보험설계사 육성 SaaS 플랫폼. 퍼널 지표 설계, LLM 기반 콘텐츠 자동화, 보험 조회 마이크로서비스를 단독 구축했습니다."
+title: "인톡 파트너스"
+description: "보험설계사 육성 SaaS 플랫폼. 전임 개발자가 떠난 뒤 화면과 API를 맡아 광고 전환 이벤트, 비회원 신청·Meta 리드 수집, 보험 조회 서비스를 구현했습니다."
 role: "프로덕트 엔지니어"
 period: "2026.03 ~ 2026.09"
-stack: ["Next.js", "React", "NestJS", "PostgreSQL", "Redis", "Claude API"]
+stack: ["Next.js", "React", "NestJS", "FastAPI", "PostgreSQL", "Redis"]
 url: "https://www.intalkpartners.com"
 published: true
-order: 2
+order: 4
 ---
 
-보험 전문가를 위한 AI 교육 플랫폼입니다. 외부 보험사 API와 연동한 실시간 보험 상품 조회, AI 기반 콘텐츠 자동 생성, 마케팅 캠페인 분석까지 플랫폼 전반의 백엔드와 프론트엔드를 담당했습니다.
+보험설계사와 GA(보험대리점)를 연결하는 스타트업의 설계사용 플랫폼입니다. 입사 3주차에 전임 개발자가 떠난 뒤 화면과 API를 맡았고, 근무 기간 커밋 중 프론트엔드 86%, 백엔드 84%를 작성했습니다. 전임자가 만든 1st-party 이벤트 수집, A/B 테스트 프레임워크, UTM 3단계 매칭, Slack 브리핑은 제 작업이 아닙니다.
 
-## 내가 만든 것
+## 맡은 일
 
-- **외부 API 연동 보험 조회** — Python Fernet 암호화를 Node.js에서 직접 구현하여 크로스 플랫폼 암호화 호환
-- **AI 콘텐츠 자동 생성** — Claude API를 활용한 Daily Briefing, 교육 콘텐츠 자동 생성 파이프라인
-- **UTM 캠페인 분석 엔진** — 3단계 매칭 알고리즘으로 Meta Ads ↔ 내부 사용자 행동 데이터 연결
-- **운영 자동화** — NestJS Scheduler 기반 크론 작업, Slack 알림 통합
+- **광고 전환 이벤트 정리** — 페르소나별 랜딩 22개에 GTM과 Meta Pixel을 설치하고 CTA 클릭과 상담 신청 완료를 전환 이벤트로 보냈습니다. PageView가 GTM 태그와 HTML 코드에서 두 번 잡히는 문제와, 인증되지 않은 도메인에서 `trackCustom`이 막히는 문제를 찾아 표준 이벤트(ViewContent, Contact, Lead)로 바꿨습니다.
+- **비회원 신청과 Meta 리드 수집** — 비회원 신청을 DB에 저장하고, 나중에 같은 전화번호로 가입하면 기존 신청이 계정에 연결되게 했습니다. 손으로 옮기던 Meta 리드는 10분마다 DB와 케어 API로 들어가게 바꿨고, `leadgen_id`와 전화번호 해시로 중복을 걸렀습니다. 배포 후 같은 리드가 반복해서 들어오던 문제는 긴 숫자 컬럼을 문자열로 고정해 고쳤습니다.
+- **매칭 진행 상태 재설계** — 권한과 화면 분기에 쓰이는 필드는 그대로 두고, 진행 표시용 필드와 변경 이력 테이블을 따로 추가해 9개 상태로 나눴습니다. 케어 쪽 상태는 5분마다 읽어 동기화했습니다.
+- **보험 조회 서비스** — Hyphen API 연동. 계약·보장 조회는 NestJS가 직접 부르고, 캡차 인식과 암호화가 필요한 인증·계정 찾기 단계는 FastAPI 서비스로 분리했습니다. 조회 결과는 Redis에 30일 캐시하고 갱신은 24시간에 5회로 제한했습니다.
+- **CI** — 5개 레포에 CI를 붙였습니다. 타입 체크·빌드·테스트만 머지를 막고, 린트는 바뀐 파일만 검사해 경고로 띄웠습니다.
 
-## AI 콘텐츠 자동화 파이프라인
+## 관련 글
 
-콘텐츠 팀이 매일 보험 업계 뉴스를 수집·요약해서 교육 자료로 만드는 데 2시간 이상 걸렸습니다. 담당자에 따라 퀄리티 편차가 컸고 주말·휴일에는 공백이 생겼습니다.
-
-Claude API로 뉴스 수집 → 요약 → 교육 포맷 변환까지 자동화했습니다. 완전 자동이 아니라 "검토만 하면 되는 상태"를 목표로 설계해서, 담당자가 최종 확인만 하고 발행할 수 있습니다. 프롬프트는 보험 도메인 용어와 톤을 반영해서 별도 튜닝했습니다.
-
-## Redis TTL 시간 드리프트 버그
-
-알림톡 중복 방지를 Redis 24시간 TTL로 처리하고 있었는데, 30분 크론 주기와 조합되면서 매일 30분씩 밀려 알림톡이 무한 발송되는 버그가 발생했습니다. TTL이 만료되면 중복 방지 키가 사라지고, 크론이 "아직 안 보냄"으로 판단해서 재발송하는 구조였습니다. TTL 자체를 없애고 2단계 상태 머신(리마인드 → 종료 안내)으로 재설계해서, 상태의 생명주기를 시간이 아니라 사용자 행동(메시지 읽음)에 연결했습니다.
-
-## Fernet 암호화 크로스 플랫폼 구현
-
-외부 보험사 API가 Python Fernet으로 암호화된 데이터를 주고받는 환경이었습니다. Python SDK를 쓰면 간단하지만 전체 스택이 Node.js라서, Fernet 스펙(AES-128-CBC + HMAC-SHA256 + Base64URL)을 Node.js crypto 모듈로 직접 구현했습니다.
+- [GA4 · Mixpanel · 자체 DB — 3중 트래킹 불일치를 해소한 과정](/posts/triple-tracking-data-consistency)
+- [Next.js에 Mixpanel 프록시를 붙이고 이벤트 이름 규칙을 정했다](/posts/mixpanel-nextjs-proxy)
+- [Redis TTL로 중복을 막았더니 알림톡이 매일 다시 나갔다](/posts/notification-infinite-loop-bug)
+- [Fire-and-Forget 호출이 만든 502](/posts/fire-and-forget-race-condition)
+- [내가 바꾼 Dockerfile이 프로덕션을 밤새 내렸다](/posts/prisma-openssl-production-down)
+- [Python Fernet 암호문을 Node.js에서 주고받기](/posts/fernet-cross-platform-encryption)
+- [캡차를 AI로 풀어 하이픈 가입을 중계하는 FastAPI 서비스](/posts/fastapi-insurance-microservice)

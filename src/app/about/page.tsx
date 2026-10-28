@@ -14,20 +14,20 @@ type SkillGroup = {
 
 const SKILL_GROUPS: SkillGroup[] = [
   {
-    label: "Design & UX",
-    skills: ["사용자 여정 설계", "프로토타이핑", "인터랙션 디자인", "정보 구조(IA)"],
-  },
-  {
     label: "Frontend",
-    skills: ["React", "Next.js", "TypeScript", "Tailwind CSS"],
+    skills: ["React", "Next.js", "TypeScript", "TanStack Query", "Recoil", "Tailwind CSS", "Storybook"],
   },
   {
     label: "Backend",
-    skills: ["NestJS", "Prisma", "PostgreSQL", "Redis"],
+    skills: ["NestJS", "FastAPI", "Prisma", "PostgreSQL", "Redis"],
   },
   {
-    label: "자동화 & 도구",
-    skills: ["Claude Code", "LangChain", "Mixpanel · GA4", "Meta Ads API"],
+    label: "Mobile",
+    skills: ["React Native (Expo)", "Capacitor", "NativeWind"],
+  },
+  {
+    label: "분석 & 도구",
+    skills: ["GTM · Meta Pixel", "GA4 · Mixpanel", "GitHub Actions", "Claude Code"],
   },
 ];
 
@@ -44,13 +44,13 @@ export default function AboutPage() {
             사용자 경험 설계부터 구현·개선까지, 제품이 더 나아지는 과정을 만드는 프로덕트 엔지니어입니다.
           </p>
           <p>
-            보험설계사 육성 SaaS 플랫폼에서 퍼널 지표를 정의하고 측정 체계를 설계했고,
-            다지점 헬스장 관리 시스템에서 분산된 비즈니스 로직을 통합하고 렌더링 성능을 개선했습니다.
+            광고 성과를 분석하던 시절에도 숫자가 어디서 만들어졌는지부터 확인했고,
+            그 숫자를 직접 고치고 싶어서 개발자가 됐습니다. 인톡에서는 광고 전환 수가 맞지 않자
+            이벤트를 하나씩 따라가 GTM과 HTML이 PageView를 두 번 보내던 것을 찾았습니다.
           </p>
           <p>
-            반복되는 작업은 시스템으로 전환합니다. LangChain + Claude API 기반의
-            콘텐츠 자동화, UTM 어트리뷰션 분석 인프라처럼 사람이 판단에 집중할 수 있도록
-            나머지를 자동화하는 방식을 선호합니다.
+            제가 만든 리드 파이프라인이 같은 리드를 10분마다 다시 넣고 있던 문제도 직접 찾아 고쳤습니다.
+            화면을 만들 때도 같은 규칙이 여러 곳에 흩어지지 않게 하는 것을 가장 먼저 봅니다.
           </p>
         </div>
       </section>
