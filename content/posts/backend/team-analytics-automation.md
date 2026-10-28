@@ -1,7 +1,7 @@
 ---
 title: "Notion 스크럼을 주간 분석 리포트로 — Claude Code 명령어와 Astro 사이트로 자동 발행"
 description: "Notion 데일리스크럼을 Claude Code 슬래시 명령어로 수집·분석해 Obsidian 볼트에 쌓고, Astro 사이트로 발행한 파이프라인과 운영하며 고친 것들."
-date: "2026-08-24"
+date: "2026-08-21"
 tags: ["자동화", "Claude Code", "Astro", "Notion API"]
 published: true
 ---

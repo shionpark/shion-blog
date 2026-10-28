@@ -1,7 +1,7 @@
 ---
 title: "Redis TTL로 중복을 막았더니 알림톡이 매일 다시 나갔다"
 description: "관리자 채팅 미읽음 알림톡이 24시간 TTL이 끝날 때마다 다시 발송되던 버그를, TTL 대신 상태로 중복을 막는 2단계 흐름으로 고친 기록."
-date: "2026-06-06"
+date: "2026-03-26"
 tags: ["NestJS", "Redis", "버그", "Cron"]
 published: true
 ---

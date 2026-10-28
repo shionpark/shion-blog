@@ -1,7 +1,7 @@
 ---
 title: "캡차를 AI로 풀어 하이픈 가입을 중계하는 FastAPI 서비스"
 description: "NestJS 옆에 붙인 FastAPI 보험 조회 서비스가 하이픈 가입·인증·계정 찾기의 다단계 흐름을 어떻게 중계하는지, 5xx 재시도와 자동 배포까지 정리한다."
-date: "2026-08-24"
+date: "2026-09-08"
 tags: ["FastAPI", "마이크로서비스", "인톡 파트너스", "Python"]
 published: true
 ---

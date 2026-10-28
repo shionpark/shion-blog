@@ -1,14 +1,14 @@
 ---
 title: "Python Fernet 암호문을 Node.js에서 주고받기"
 description: "보험 조회 서비스(Python)가 복호화하는 비밀번호를 NestJS에서 같은 Fernet 포맷으로 암호화해야 했다. npm 패키지 대신 스펙을 읽고 직접 구현한 기록."
-date: "2026-06-05"
+date: "2026-03-23"
 tags: ["Node.js", "암호화", "Fernet", "보안"]
 published: true
 ---
 
 ## 왜 직접 구현했나
 
-보험 조회 기능을 만들면서 사용자의 보험 조회용 비밀번호를 DB에 저장해야 했다. NestJS 백엔드는 암호화한 문자열만 저장하고, 복호화는 Python으로 만든 보험 조회 서비스(FastAPI)가 한다. 이 Python 쪽 암호화 코드는 기존 ALIV 서비스의 `cryptography.Fernet` 구현에서 가져온 것이라, NestJS가 같은 형식으로 암호화해야 했다.
+보험 조회 기능을 만들면서 사용자의 보험 조회용 비밀번호를 DB에 저장해야 했다. NestJS 백엔드는 암호화한 문자열만 저장하고, 복호화는 Python 쪽이 한다. 이 Python 쪽 암호화 코드는 기존 ALIV 서비스의 `cryptography.Fernet` 구현이고(이후 FastAPI 보험 조회 서비스로 옮겨졌다), NestJS가 같은 형식으로 암호화해야 했다.
 
 Node.js에는 Fernet 공식 구현이 없다. npm에 몇 개 있지만 유지보수가 끊겼거나 스펙을 다 구현하지 않았다. 그래서 Fernet 스펙대로 직접 만들었다.
 

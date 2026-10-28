@@ -1,7 +1,7 @@
 ---
 title: "신청이 어디서 왔는지 남기기 — 비회원 신청과 Meta 리드를 한 DB로"
 description: "웹 비회원 폼, 카카오봇, Meta 리드 광고로 따로 들어오던 매칭 신청을 DB로 모으고 UTM을 남긴 과정. 같은 리드가 10분마다 다시 들어오던 버그의 원인은 구글 시트가 긴 숫자를 숫자로 바꾼 것이었다."
-date: "2026-09-05"
+date: "2026-08-31"
 tags: ["NestJS", "Meta Ads", "Google Sheets", "UTM", "파이프라인"]
 published: true
 ---
