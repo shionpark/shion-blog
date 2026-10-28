@@ -3,7 +3,7 @@ title: "실제 데이터 기반 ApexCharts 차트 구현 기록"
 description: "ApexCharts로 회원 통계, 연령 분포, 시간대별 방문 등 실제 데이터 기반 대시보드 차트를 구현한 과정을 정리합니다."
 date: "2025-03-05"
 tags: ["apexCharts", "Dashboard"]
-published: true
+published: false
 ---
 
 [앞선 글](/posts/career/projects-gymlight-dashboard-1)에서 샘플 데이터로 시각화 구조를 먼저 검증한 뒤, 실제 데이터를 기반으로 개별 차트 컴포넌트를 구현했다. 다양한 비즈니스 로직이 적용된 차트들은 실제 요구사항에 대응하는 방식으로 구성되었고, 반복적인 패턴은 가능한 컴포넌트화하여 추후 재사용 가능성을 고려했다.

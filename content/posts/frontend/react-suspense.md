@@ -1,6 +1,6 @@
 ---
 title: "URL 기반 필터 상태에서 Suspense + 스켈레톤 UI까지"
-description: "필터 상태의 SSOT를 URL로 확립하고, Suspense와 Suspensive를 도입해 스피너 기반 로딩을 스켈레톤 UI 부분 로딩으로 전환한 과정을 정리한다."
+description: "필터 상태의 SSOT를 URL로 확립하고, Suspense와 팀에서 쓰는 Suspensive로 스피너 기반 로딩을 스켈레톤 UI 부분 로딩으로 전환한 과정을 정리한다."
 date: "2026-01-05"
 tags: ["React", "Suspense", "Suspensive", "useSearchParams", "Next.js"]
 published: true
@@ -385,7 +385,7 @@ A와 B는 로딩도, 에러도 서로 독립적으로 처리된다.
 - 아직 준비되지 않은 섹션만 스켈레톤으로 대체하여 **데이터가 도착하는 순서대로 화면이 채워진다**
 - 실제 로딩 시간을 줄이지 않더라도, **사용자의 체감 성능을 개선**할 수 있다
 
-## Suspense 대신 Suspensive를 선택한 이유
+## Suspense 위에 Suspensive를 얹은 이유
 
 Suspense와 ErrorBoundary를 조합해 사용하다 보니 반복되는 패턴이 눈에 띄기 시작했다.
 
@@ -403,7 +403,7 @@ Suspense와 ErrorBoundary를 조합해 사용하다 보니 반복되는 패턴�
 - 섹션마다 fallback을 직접 지정하다 보니, 지정하지 않은 곳의 로딩 UI가 제각각이 되기 쉽다는 점
 - `useSuspenseQuery`를 쓰는 Client Component도 **서버 렌더링 단계에서 한 번 실행된다**는 점
 
-이 문제를 다루기 위해 Toss에서 만든 [Suspensive](https://suspensive.org/)의 `@suspensive/react`를 도입했다.  
+이 문제를 다루는 데 Toss에서 만든 [Suspensive](https://suspensive.org/)의 `@suspensive/react`를 썼다. 이 라이브러리는 팀원이 프로젝트에 먼저 추가해 둔 것이고, 나는 이 구조에서 어떤 옵션이 무엇을 해결하는지 정리했다.  
 Suspensive는 React의 `Suspense`와 `ErrorBoundary`를 대체하는 것이 아니라, 같은 사용법 위에 몇 가지 옵션을 더한 라이브러리다.
 
 ### Suspensive로 정리한 것들
@@ -505,7 +505,7 @@ URL을 단일 기준으로 삼으면서 상태의 책임은 정리되었지만,
 `useSearchParams`는 이 문제를 가장 솔직하게 드러내는 훅이었고,
 `Suspense`는 그 문제를 렌더링 경계라는 구조로 표현하는 도구였다.
 
-그리고 `Suspensive`는 이 구조를 실제 서비스 코드에서 지속 가능하게 유지하기 위한 선택이었다.
+그리고 `Suspensive`는 이 구조를 실제 서비스 코드에서 지속 가능하게 유지하기 위한 도구였다.
 - `Suspense`와 `ErrorBoundary`의 반복을 줄이고
 - 렌더링과 에러 처리의 책임을 명확히 하며
 - 서버와 클라이언트의 차이를 코드 레벨에서 의식하게 만든다

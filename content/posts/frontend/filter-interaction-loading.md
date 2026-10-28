@@ -3,7 +3,7 @@ title: "세션 필터를 URL로 옮기고 크루 상세를 섹션별로 쪼갰�
 description: "Run Fit에서 세션 필터 상태를 URL 쿼리로 옮기고, 크루 상세 페이지의 Suspense를 섹션 단위로 나눈 기록."
 date: "2026-08-13"
 tags: ["UX 설계", "Run Fit", "로딩"]
-published: true
+published: false
 ---
 
 ## 문제 두 가지

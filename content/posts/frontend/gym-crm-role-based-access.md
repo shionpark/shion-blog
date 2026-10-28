@@ -3,7 +3,7 @@ title: "헬스장 CRM 프로젝트: 역할 기반 메뉴 구성과 접근 제어
 description: "복잡한 역할 구조를 반영한 메뉴 구성과 이중 제한 방식의 접근 제어 설계"
 date: "2025-05-15"
 tags: ["RBAC", "PoLP", "Recoil", "React"]
-published: true
+published: false
 ---
 
 ## 1. 프로젝트 소개

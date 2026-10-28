@@ -3,7 +3,7 @@ title: "ApexCharts 기반 대시보드 차트 구성 기록"
 description: "실제 데이터를 기반으로 ApexCharts 차트 구현"
 date: "2024-05-26"
 tags: ["apexCharts"]
-published: true
+published: false
 ---
 
 이 글은 실제 프로젝트에서 대시보드 UI를 구성하며, ApexCharts를 사용해 차트를 구현하고 컴포넌트화해나간 과정을 정리한 기록이다. 디자인 요소에 맞춰 적절한 차트 유형을 선택하고, 반복되는 설정을 효율적으로 관리하는 방식에 대해 단계적으로 정리했다.
