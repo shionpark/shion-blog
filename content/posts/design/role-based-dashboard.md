@@ -1,134 +1,64 @@
 ---
-title: "8개 역할, 하나의 대시보드 — Dictionary 기반 메뉴 권한 설계"
-description: "Gymlight에서 역할별로 메뉴와 데이터 범위가 달라지는 대시보드를 Dictionary 구조와 RoleProtectedRoute로 설계한 과정을 정리한다."
+title: "매니저가 다른 지점 직원을 볼 수 있었다 — 지점 선택을 전역 상태로 옮긴 이야기"
+description: "헬스장 관리 시스템에서 매니저가 타 지점 정보를 조회하는 버그를 고치다가, 지점 선택 방식 자체를 헤더와 전역 상태로 바꾼 기록."
 date: "2026-08-13"
-tags: ["UX 설계", "Gymlight", "RBAC"]
+tags: ["Gymlight", "React", "Recoil", "권한"]
 published: true
 ---
 
-## 배경
+## 버그 리포트
 
-Gymlight는 다지점 헬스장 관리 시스템이다. 8개 역할이 있고 역할마다 볼 수 있는 메뉴와 데이터 범위가 달랐다:
+테스트 문서에 한 줄이 올라왔다. A 지점 매니저로 로그인했는데 직원관리와 락커관리 페이지에서 다른 지점 정보가 보인다는 내용이었다. 이슈 #178로 등록하고 내가 맡았다.
 
-```typescript
-// types/enum.types.ts
-export type UserRoleType =
-  | '관리자'
-  | '매니저'
-  | '팀장 트레이너'
-  | '트레이너'
-  | '팀장 FC'     // Fitness Consultant
-  | 'FC'
-  | '인포'
-  | '전지점 인포';
-```
+Gymlight는 지점이 여러 개인 헬스장의 회원·직원·락커·출석을 관리하는 시스템이다. 관리자는 전 지점을 봐야 하고, 매니저·트레이너·FC는 자기 지점만 봐야 한다. 이 규칙이 페이지마다 따로 구현돼 있었고, 두 페이지에서 빠져 있었다.
 
-문제는 이 권한 구조를 어떻게 UI에 반영할 것인가였다. 역할별로 대시보드를 8개 만드는 건 유지보수가 불가능하고 하나의 대시보드에서 역할에 따라 메뉴를 숨기자니 조건 분기가 곳곳에 흩어질 것이 뻔했다.
+## 기존 구조의 문제
 
-## 접근 제어 매트릭스
+지점 선택 Select는 관리 메뉴 안에만 있었다. 그 안에서 `useBranchSelect` 훅이 지점 목록과 선택된 지점을 들고 있었고, 이 훅의 값을 `use...table` 훅부터 Table, Form까지 prop으로 계속 내려보내고 있었다.
 
-역할별 페이지 접근 권한을 상수 객체로 선언했다:
+지점 정보는 목록 조회뿐 아니라 락커 그룹 생성 같은 Form 제출에도 들어간다. 직원은 로그인한 뒤 지점이 바뀌지 않는데도, 직원 화면까지 같은 prop 전달 구조를 따라야 했다. 권한 규칙을 고치려면 이 훅을 쓰는 곳을 전부 따라가야 했다.
 
-```typescript
-// constants/authroles.ts
-export const PAGE_ACCESS_ROLES: Record<string, UserRoleType[]> = {
-  ALL_STAFF_ROLES: ['관리자', '매니저', '팀장 트레이너', '트레이너',
-                    '팀장 FC', 'FC', '인포', '전지점 인포'],
-  STAFF:      ['관리자', '매니저'],
-  TEAM:       ['관리자', '매니저', '팀장 트레이너', '팀장 FC'],
-  STATICS:    ['관리자', '매니저'],
-  ACCOUNTING: ['관리자', '매니저'],
-  BRANCH:     ['관리자'],           // 관리자 전용
-  MY_WORK:    ['관리자', '매니저', '팀장 트레이너', '트레이너'],
+## 바꾼 것
+
+지점 선택을 헤더로 올리고 상태를 Recoil 전역 상태(`activeBranchState`)로 옮겼다.
+
+- 관리자: 로그인하면 지점 목록의 첫 번째 지점이 활성화된다. 헤더에서 지점을 고르면 전 지점 목록 중에서 바뀐다.
+- 매니저·트레이너·FC: 본인 `branchId`의 지점이 활성화된다. Select에는 그 지점만 나오고, 변경 핸들러는 관리자가 아니면 바로 반환한다.
+
+```ts
+const handleBranchChange = (e: ChangeEvent<HTMLSelectElement>) => {
+  if (currentUser?.role !== '관리자') return;
+  const selectedBranch = branchNameData?.find(({ name }) => name === e.target.value);
+  setActiveBranch(selectedBranch);
 };
 ```
 
-메뉴를 추가하거나 역할의 접근 범위를 바꿀 때 이 파일 하나만 수정하면 된다. 컴포넌트 코드에 `if (role === '관리자')` 같은 조건문이 퍼지지 않는다.
+락커 테이블, 출석 조회, 공지 폼은 prop 대신 `useRecoilValue(activeBranchState)`로 지점을 읽는다. 관리자가 지점을 고른 뒤 다른 메뉴로 이동해도 선택이 유지된다. 로그아웃하면 `activeBranchState`를 비운다.
 
-## Dictionary 기반 메뉴 구조
+## 팀과 다르게 생각한 부분
 
-사이드바 메뉴를 역할 그룹별로 Dictionary 타입(`Record<string, T>`)으로 분리했다:
+원래 헤더에 지점 선택을 두지 않은 데는 이유가 있었다. 선택된 지점이 있는데 관리 메뉴가 전 지점을 보여주는 건 맞지 않다는 판단이었다.
 
-- **COMMON_MENU**: 대시보드, 공지사항, 회원관리, 상품관리, 락커관리, 출석관리 — 전 역할 공통
-- **ADMIN_MENU**: 직원관리, 팀관리, 통계관리, 회계관리, **지점관리** — 관리자 전용
-- **MANAGER_MENU**: 직원관리, 팀관리, 통계관리, 회계관리 — 매니저 (지점관리 없음)
-- **LEADER_TRAINER_MENU**: 나의 업무 — 팀장 트레이너
-- **TRAINER_MENU**: 나의 업무 — 트레이너
+나는 "지점 선택"과 "전 지점 목록 조회"를 다른 개념으로 봤다. 지금 보고 있는 지점이 어디든 관리자는 전 지점 목록을 볼 수 있어야 한다고 PR에 썼다. 지점 정보가 Page, Table, Form 제출에 두루 쓰이는 값이라 전역으로 두는 쪽이 낫다는 것도 같이 적었다.
 
-각 메뉴 항목은 `{ icon: HeroIconComponent, label: string }` 형태고 키가 라우트 슬러그에 매핑된다. 사이드바 컴포넌트의 `renderUserMenu()` 함수가 현재 사용자의 역할에 따라 어떤 Dictionary를 렌더링할지 결정한다:
+이 의견은 바로 받아들여지지 않았다. 백엔드 개발자는 데이터 구조가 지점 기준으로 쌓이고 있어서 그렇다고 했는데, 그때는 그 말이 정확히 무슨 뜻인지 알지 못했다. 말로 더 설득하는 대신 화면을 먼저 만들어서 보여줬다. 헤더에 Select를 두고 관리자가 지점을 바꿔 가며 전 지점 목록을 보는 흐름이었다. 그걸 보고 괜찮은 것 같다는 답이 돌아왔다.
 
-```typescript
-// Sidebar.tsx — renderUserMenu()
-const roleMenu =
-  currentUser.role === '관리자' ? ADMIN_MENU :
-  currentUser.role === '매니저' ? MANAGER_MENU :
-  currentUser.role === '팀장 트레이너' ? LEADER_TRAINER_MENU :
-  currentUser.role === '트레이너' ? TRAINER_MENU :
-  null;  // FC, 인포 역할은 공통 메뉴만
-```
+## 같은 지점 값을 쓴 작업들
 
-FC와 인포 역할은 전용 메뉴가 없다. COMMON_MENU만 보이는 것이 이 역할의 올바른 권한 범위다.
+지점 전역 상태 위에 두 가지 화면을 만들었다.
 
-## Recoil 역할 상태 관리
+**태블릿 체크인.** 회원이 센터 태블릿에서 휴대폰 뒷번호 4자리를 누르면 같은 번호의 회원 목록이 뜨고, 목록에서 본인을 골라 출석을 등록한다. 계약서와 출석체크는 태블릿으로 쓰는 화면이라, 사이드바가 있는 기존 레이아웃 밖에 `CheckInPage`를 따로 만들고 iPad Pro 11" 기준(834×1194)으로 맞췄다. 숫자패드는 4자리가 차야 등록 버튼 상태가 바뀐다. 체크인 화면 위쪽에는 로그인한 사용자의 지점 이름이 나온다.
 
-현재 사용자 정보를 Recoil atom으로 전역 관리한다:
+**출석 조회.** 체크인한 회원 목록을 날짜와 성별로 거를 수 있고, 목록의 more 버튼으로 회원 상세 모달을 연다.
 
-```typescript
-// currentUserState atom
-const currentUserState = atom<IUserResponse | null>({
-  key: 'currentUserState',
-  default: null,
-});
+## 요구사항 정의서
 
-// activeBranchState atom (recoil-persist)
-const activeBranchState = atom<IBranchResponse | null>({
-  key: 'activeBranchState',
-  default: null,
-  effects: [persistAtom],
-});
-```
+이 작업과 별개로 인증, 지점, 직원, 상품, 락커, 회원, 출석, 회계, 통계 등 14개 영역 88개 기능의 요구사항 정의서를 썼다. 기능마다 사용 권한, 입력 항목, 검증 규칙, 역할별 동작 차이를 적었다.
 
-로그인 시 `useMe()` 훅이 사용자 데이터를 가져오면 `currentUserState`에 동기화한다. 역할이 바뀌면 사이드바가 자동으로 갱신된다. `activeBranchState`는 관리자가 여러 지점을 전환할 때 쓰는데, `recoil-persist`로 영속화해서 새로고침 후에도 선택된 지점이 유지된다.
+정의서를 쓴 이유는 클라이언트(개발을 맡긴 회사)가 필요하다고 말하는 기능이 문서로 정리돼 있지 않았기 때문이다. 내가 정리한 기능 목록이 클라이언트의 실제 요구와 맞는지 계속 확인해야 했다. 가장 애먹은 건 이 조율이었다. 정리한 뒤에 새 기능이 계속 나와서 목록이 바뀌었고, 바뀔 때마다 클라이언트와 다시 맞췄다. 정의서는 그 확인의 기준 문서로 썼다.
 
-## 라우트 보호: RoleProtectedRoute
+## 남은 한계
 
-메뉴를 숨기는 것만으로는 부족하다. URL을 직접 입력하면 권한 없는 페이지에 접근할 수 있다. 라우터에서 역할 기반 가드를 걸었다:
+이 PR은 프론트 쪽 변경이다. 직원의 지점 목록을 훅에서 role에 따라 걸러내고, 변경 핸들러에서 관리자 여부를 확인한다.
 
-```typescript
-// RoleProtectedRoute.tsx
-const RoleProtectedRoute = ({ allowedRoles, children }) => {
-  const { data: currentUser } = useMe();
-
-  if (!currentUser) return <Navigate to="/login" />;
-
-  if (!allowedRoles.includes(currentUser.role)) {
-    return <Navigate to="/dashboard" />;
-    // + 권한 없음 알림
-  }
-
-  return children;
-};
-
-// AppRouter.tsx에서 사용
-<RoleProtectedRoute allowedRoles={PAGE_ACCESS_ROLES.BRANCH}>
-  <BranchManagementPage />
-</RoleProtectedRoute>
-```
-
-메뉴 숨김과 라우트 가드, 두 겹으로 접근을 제어한다. 메뉴 숨김은 UX를 담당하고(권한 없는 메뉴가 보이지 않아서 사용자가 혼란을 겪지 않음), 라우트 가드는 URL 직접 접근을 차단한다.
-
-## 같은 메뉴, 다른 데이터 범위
-
-메뉴 접근 권한만으로는 부족했다. 같은 "회원관리" 메뉴에 들어가더라도 역할에 따라 보이는 데이터 범위가 달라야 했다:
-
-- **관리자**: 활성 지점 선택기로 지점을 전환하며 전체 데이터를 볼 수 있다
-- **매니저**: 관리자와 동일하게 조회 가능하지만 지점관리 메뉴 없음
-- **트레이너**: 회원관리에서는 전체 회원이 보이지만 "나의 업무"에서는 자기 담당 회원만 보인다
-
-트레이너가 회원관리에서 전체 회원을 보는 건 최소 권한 원칙(PoLP)에 어긋나 보이지만 운영상 필요한 예외였다. 트레이너가 신규 회원을 배정받을 때 해당 회원의 기본 정보를 확인할 수 있어야 하기 때문이다. 대신 "나의 업무"에서는 자기 담당만 보이게 해서 다른 트레이너의 업무에는 접근하지 못한다.
-
-## 트레이드오프
-
-Dictionary 기반 선언적 구조는 권한 변경 시 한 곳만 수정하면 되지만 역할-메뉴 매핑이 정적이라는 한계가 있다. 런타임에 동적으로 메뉴를 추가하거나, 개별 사용자 단위로 커스텀 권한을 부여하는 것은 이 구조로는 어렵다. 헬스장 관리 시스템에서 역할 종류가 자주 바뀌지 않기 때문에 정적 구조로 충분했다.
-
-PoLP 예외를 코드에 남기지 않으면 까먹는다. "왜 트레이너가 회원관리에서 전체를 볼 수 있는지"를 주석이나 문서로 남겨두지 않으면, 나중에 다른 개발자가 버그로 오인하고 수정할 수 있다. 원칙의 예외를 둘 때는 그 이유를 함께 기록하는 것이 방어적 설계다.
+데이터 접근을 막는 쪽은 서버에 따로 있다. 백엔드의 `@BranchId()` 데코레이터는 관리자와 전 지점 조회 권한 역할이면 요청에 담긴 `branchId`를 쓰고(없으면 `null`, 전 지점), 그 외 역할이면 요청 값을 무시하고 로그인한 사용자의 `branchId`를 쓴다. 내가 고친 부분은 이 서버 규칙 위에서 헤더에 보이는 지점 목록과 선택 상태다.

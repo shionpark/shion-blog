@@ -1,154 +1,71 @@
 ---
-title: "Next.js에서 Mixpanel 프록시 통합하기 — 광고 차단기 우회부터 택소노미 설계까지"
-description: "Next.js Route Handler로 Mixpanel 프록시를 구축하고, 내부 IP 필터링과 이벤트 택소노미를 설계한 과정을 공유합니다."
+title: "Next.js에 Mixpanel 프록시를 붙이고 이벤트 이름 규칙을 정했다"
+description: "광고 차단기에 막히는 Mixpanel 요청을 자사 도메인 프록시로 우회하고, 사무실 IP 필터와 button_id 중앙 정의, UTM 등록까지 정리한 기록."
 date: "2026-06-04"
 tags: ["Next.js", "Mixpanel", "Analytics", "프록시"]
 published: true
 ---
 
-## 왜 프록시가 필요한가
+## 왜 프록시를 붙였나
 
-Mixpanel을 클라이언트에서 직접 호출하면 두 가지 문제가 있습니다:
+Mixpanel을 브라우저에서 직접 부르면 uBlock Origin 같은 광고 차단기가 `mixpanel.com` 도메인 요청을 막는다. 막힌 요청은 에러 없이 사라져서 이벤트가 얼마나 빠지는지도 알 수 없다. 그래서 `/mp/*` 경로로 요청을 받아 서버가 Mixpanel로 전달하는 프록시를 만들었다. 브라우저가 보기에는 자사 도메인으로 가는 요청이다.
 
-1. **광고 차단기가 요청을 차단** — uBlock Origin, Brave 등이 `api.mixpanel.com` 도메인을 기본 차단합니다. 사용자의 20~40%가 광고 차단기를 사용한다는 통계도 있습니다.
-2. **데이터 유실** — 차단된 요청은 에러 없이 사라집니다. 분석 데이터의 신뢰도가 떨어집니다.
+## Route Handler
 
-해결 방법은 자사 도메인을 경유하는 프록시를 두는 것입니다. `api.mixpanel.com` 대신 `intalkpartners.com/mp/track`으로 요청하면 광고 차단기가 자사 도메인으로 인식해서 통과시킵니다.
+Next.js App Router의 catch-all Route Handler(`src/app/mp/[...path]/route.ts`) 하나로 `/mp/track`, `/mp/engage`, `/mp/decide` 등을 다 받는다. 경로에 따라 업스트림이 다르다. SDK 스크립트는 CDN(`cdn.mxpnl.com`), 이벤트는 `api-js.mixpanel.com`, 설정은 `decide.mixpanel.com`이다.
 
-## Next.js Route Handler로 프록시 구축
+프록시를 거치면 Mixpanel이 사용자 IP를 서버의 IP로 보기 때문에, `x-forwarded-for`의 첫 값을 `ip` 파라미터로 넘겨서 위치 정보를 유지한다.
 
-Next.js App Router의 Route Handler를 사용하면 별도 서버 없이 프록시를 만들 수 있습니다.
+## 사무실 IP는 이벤트만 막는다
+
+내부 트래픽이 실제 사용자 지표에 섞이지 않게, 사무실 IP에서 온 요청은 프록시에서 버린다. IP는 환경변수(`MIXPANEL_INTERNAL_IPS`)로 뺐다.
 
 ```typescript
-// src/app/mp/[...path]/route.ts
-
-const MIXPANEL_API = 'https://api.mixpanel.com';
-
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ path: string[] }> }
-) {
-  const { path } = await params;
-  const targetPath = path.join('/');
-
-  // 내부 IP 체크
-  if (isInternalIp(request) && isTrackingPath(targetPath)) {
-    return new Response(null, { status: 204 });
-  }
-
-  const body = await request.text();
-  const response = await fetch(`${MIXPANEL_API}/${targetPath}`, {
-    method: 'POST',
-    headers: { 'Content-Type': request.headers.get('Content-Type') ?? '' },
-    body,
-  });
-
-  return new Response(response.body, {
-    status: response.status,
-    headers: { 'Content-Type': response.headers.get('Content-Type') ?? '' },
-  });
+// 내부 IP의 추적 요청 차단 (SDK 초기화는 허용)
+if (clientIp && INTERNAL_IPS.has(clientIp) && TRACKING_PATHS.has(path)) {
+  return NextResponse.json({ status: 1 });
 }
 ```
 
-`/mp/*` 경로로 들어오는 모든 요청을 Mixpanel API로 포워딩합니다. Catch-all 라우트(`[...path]`)를 사용해서 `/mp/track`, `/mp/engage`, `/mp/decide` 등 모든 엔드포인트를 하나의 핸들러로 처리합니다.
+`/mp/decide`까지 막으면 SDK가 설정을 못 받아 아예 동작하지 않아서, `track`과 `engage`만 막는다. 차단할 때 Mixpanel의 정상 응답 형식(`{"status": 1}`)을 돌려주기 때문에 SDK는 성공한 줄 안다. 이 선택이 나중에 보장분석 PV가 Mixpanel에서 0으로 나오는 원인이 됐다. 그 이야기는 [3중 트래킹 불일치](/posts/triple-tracking-data-consistency) 글에 있다.
 
-## 내부 IP 필터링
+## 이벤트 이름 규칙
 
-분석 데이터에서 가장 신경 쓴 부분은 **내부 트래픽 오염 방지**입니다. 개발자와 운영팀이 매일 서비스를 사용하기 때문에, 이 트래픽이 실제 사용자 데이터에 섞이면 지표가 왜곡됩니다.
+이벤트 이름은 `p_` 접두사로 시작한다. 이벤트 이름을 TypeScript 유니온 타입으로 두어 오타를 컴파일 단계에서 잡는다. 페이지뷰는 `p_pv_landing`, `p_pv_login`처럼 `p_pv_{페이지}`이고, `MixpanelProvider`의 경로 매핑 표에서 경로를 이름으로 바꾼다.
 
 ```typescript
-const INTERNAL_IPS = process.env.MIXPANEL_INTERNAL_IPS?.split(',') ?? [];
-
-function isInternalIp(request: Request): boolean {
-  const forwarded = request.headers.get('x-forwarded-for');
-  const clientIp = forwarded?.split(',')[0]?.trim();
-  return clientIp ? INTERNAL_IPS.includes(clientIp) : false;
-}
+export type MixpanelEvent =
+  | 'p_clicked_cta'
+  | 'p_signup_completed'
+  | 'p_calculator_started'
+  | 'p_pv_landing'
+  | 'p_pv_login'
+  // ...
 ```
 
-중요한 점은 **SDK 초기화 요청은 차단하지 않는 것**입니다. Mixpanel SDK가 `/mp/decide`로 설정을 가져오는 요청까지 차단하면 SDK 자체가 동작하지 않습니다. 이벤트 전송 경로(`/mp/track`, `/mp/engage`)만 선별적으로 차단합니다.
+## button_id를 한 파일에 모았다
+
+CTA 클릭은 `p_clicked_cta` 이벤트에 `button_id`를 붙여 구분한다. `trackCTA()` 헬퍼는 1월에 다른 팀원이 만들어 둔 것이다. 내가 한 일은 `button_id`를 `mixpanel-taxonomy.ts` 한 곳에 모으고 규칙을 정한 것이다.
 
 ```typescript
-const TRACKING_PATHS = ['track', 'engage', 'import'];
-
-function isTrackingPath(path: string): boolean {
-  return TRACKING_PATHS.some((trackingPath) => path.startsWith(trackingPath));
-}
-```
-
-## 이벤트 택소노미 설계
-
-분석 시스템에서 이벤트 이름과 속성을 체계 없이 추가하면, 6개월 후에는 어떤 이벤트가 뭘 의미하는지 아무도 모르게 됩니다. 그래서 택소노미(이벤트 분류 체계)를 먼저 설계했습니다.
-
-### 네이밍 컨벤션
-
-```typescript
-// mixpanel-taxonomy.ts
-
-// p_ prefix로 프로덕트 이벤트임을 표시
-export const EVENTS = {
-  PAGE_VIEW: 'p_page_view',
-  CTA_CLICK: 'p_cta_click',
-  SIGNUP_COMPLETED: 'p_signup_completed',
-  LESSON_STARTED: 'p_lesson_started',
-  LESSON_COMPLETED: 'p_lesson_completed',
-  EXAM_PASSED: 'p_exam_passed',
-  CARE_SUBMITTED: 'p_care_submitted',
-} as const;
-```
-
-`p_` prefix는 Mixpanel이 자동 수집하는 이벤트와 우리가 직접 정의한 이벤트를 구분하기 위해 도입했습니다.
-
-### CTA 추적 중앙화
-
-여러 화면에 흩어진 CTA 버튼의 클릭을 일관되게 추적하기 위해 `trackCTA` 헬퍼를 만들었습니다.
-
-```typescript
+// 컨벤션: cta_{page}_{purpose}
+// 한 번 등록된 button_id는 절대 변경 금지 — 과거 데이터 단절 방지
 export const BUTTON_IDS = {
-  HERO_SIGNUP: 'hero_signup',
-  LANDING_BOTTOM_CTA: 'landing_bottom_cta',
-  DASHBOARD_INSURANCE: 'dashboard_insurance',
+  LANDING_CALCULATOR: 'cta_landing_calculator',
+  HEADER_START: 'cta_header_start',
+  DASHBOARD_CARE_APPLY: 'cta_dashboard_care_apply',
   // ...
 } as const;
-
-export function trackCTA(buttonId: string) {
-  mixpanel.track(EVENTS.CTA_CLICK, { button_id: buttonId });
-}
 ```
 
-`button_id`는 한번 정하면 변경하지 않는 것을 원칙으로 했습니다. 버튼 텍스트나 위치가 바뀌어도 ID는 유지해야 시계열 데이터의 연속성이 보장됩니다.
+버튼 문구나 위치가 바뀌거나 A/B 테스트로 카피가 달라져도 ID는 그대로 두어야 시계열이 끊기지 않는다. 새 CTA를 넣을 때는 이 파일에 먼저 등록하고, 컴포넌트에서는 `trackCTA()`만 부른다.
 
-### UTM 파라미터 연동
+## UTM은 super property로
 
-유입 경로 분석을 위해 UTM 파라미터를 super property로 등록했습니다.
+`MixpanelProvider`가 처음 마운트될 때 URL에서 `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `utm_term`을 읽어 `mixpanel.register`로 등록한다. 이후 이벤트에 UTM이 자동으로 붙어서, 퍼널에서 캠페인별로 가입 전환을 나눠 볼 수 있다.
 
-```typescript
-// MixpanelProvider 내부
-useEffect(() => {
-  const searchParams = new URLSearchParams(window.location.search);
-  const utmSource = searchParams.get('utm_source');
-  const utmMedium = searchParams.get('utm_medium');
-  const utmCampaign = searchParams.get('utm_campaign');
+로그인한 사용자 중 ADMIN은 `identify`하지 않는다. 이벤트 전송 자체를 막는 건 아니다.
 
-  if (utmSource) {
-    mixpanel.register({
-      utm_source: utmSource,
-      utm_medium: utmMedium,
-      utm_campaign: utmCampaign,
-    });
-  }
-}, []);
-```
+## 남은 것
 
-`register`로 등록하면 이후 모든 이벤트에 UTM 파라미터가 자동으로 포함됩니다. Mixpanel 퍼널 분석에서 "어떤 광고 캠페인에서 유입된 사용자가 가입까지 이어지는가"를 바로 확인할 수 있습니다.
-
-## ADMIN 사용자 제외
-
-내부 IP 필터링 외에, 로그인한 ADMIN 사용자의 이벤트도 제외 처리했습니다. IP가 아닌 사용자 역할 기반이라 재택 근무 등의 상황에서도 동작합니다.
-
-## 결과
-
-- 광고 차단기 환경에서도 이벤트 수집률 유지
-- 내부 트래픽 제거로 실제 사용자 지표 신뢰도 확보
-- 택소노미 기반으로 팀 전체가 동일한 기준으로 이벤트를 추가
-- UTM 연동으로 채널별 전환 퍼널 분석 가능
+- 사무실 IP 필터는 이벤트 확인을 사무실에서 하면 아무것도 안 보이게 만든다. 이걸 놓쳐서 7월에 Mixpanel 0건의 원인을 찾는 데 시간을 썼다.

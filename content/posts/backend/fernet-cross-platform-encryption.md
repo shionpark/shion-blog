@@ -1,140 +1,70 @@
 ---
-title: "Python Fernet 암호화를 Node.js에서 구현하기"
-description: "외부 보험 API가 Python Fernet으로 암호화된 데이터를 주고받는 환경에서, NestJS 백엔드와 호환되는 암호화 모듈을 직접 구현한 과정을 정리합니다."
+title: "Python Fernet 암호문을 Node.js에서 주고받기"
+description: "보험 조회 서비스(Python)가 복호화하는 비밀번호를 NestJS에서 같은 Fernet 포맷으로 암호화해야 했다. npm 패키지 대신 스펙을 읽고 직접 구현한 기록."
 date: "2026-06-05"
 tags: ["Node.js", "암호화", "Fernet", "보안"]
 published: true
 ---
 
-## 배경
+## 왜 직접 구현했나
 
-인톡 파트너스에서 외부 보험 조회 API(Hyphen)와 연동하는 작업을 했습니다. Hyphen의 보험 조회 서비스는 Python 기반이고, 사용자 비밀번호 같은 민감 정보를 **Fernet 암호화**로 주고받고 있었습니다.
+보험 조회 기능을 만들면서 사용자의 보험 조회용 비밀번호를 DB에 저장해야 했다. NestJS 백엔드는 암호화한 문자열만 저장하고, 복호화는 Python으로 만든 보험 조회 서비스(FastAPI)가 한다. 이 Python 쪽 암호화 코드는 기존 ALIV 서비스의 `cryptography.Fernet` 구현에서 가져온 것이라, NestJS가 같은 형식으로 암호화해야 했다.
 
-문제는 우리 백엔드가 NestJS(Node.js)라는 것이었습니다. `cryptography.Fernet`은 Python 라이브러리이고, Node.js에는 공식 구현체가 없습니다. npm에 몇 개 패키지가 있지만 유지보수가 되지 않거나 스펙이 불완전했습니다.
+Node.js에는 Fernet 공식 구현이 없다. npm에 몇 개 있지만 유지보수가 끊겼거나 스펙을 다 구현하지 않았다. 그래서 Fernet 스펙대로 직접 만들었다.
 
-직접 구현하기로 했습니다.
-
-## Fernet이 하는 일
-
-Fernet은 대칭키 암호화 스킴으로, 내부적으로 이런 구조입니다:
+## Fernet 구조
 
 ```
 Fernet 키 (32바이트)
-├── Signing Key (앞 16바이트) → HMAC-SHA256 서명에 사용
-└── Encryption Key (뒤 16바이트) → AES-128-CBC 암호화에 사용
+├── 앞 16바이트 → HMAC-SHA256 서명 키
+└── 뒤 16바이트 → AES-128-CBC 암호화 키
+
+토큰: Version(1B) | Timestamp(8B) | IV(16B) | Ciphertext | HMAC(32B)
 ```
 
-암호화된 토큰의 구조:
+단순 AES가 아니라 버전, 시각, HMAC 검증까지 들어간 포맷이다.
 
-```
-Version (1B) | Timestamp (8B) | IV (16B) | Ciphertext (가변) | HMAC (32B)
-```
+## 구현 (hyphen-crypto.util.ts)
 
-단순한 AES 암호화가 아니라 버전, 타임스탬프, HMAC 검증까지 포함된 패키지 포맷입니다.
-
-## Node.js 구현
-
-### 키 유도
-
-Python의 Fernet은 Base64로 인코딩된 32바이트 키를 받지만, Hyphen API는 평문 비밀키에서 SHA-256 해시를 거쳐 키를 유도합니다.
+키는 환경변수 `HYPHEN_ENCRYPTION_KEY`를 SHA-256으로 해시해서 만든다. Python 쪽도 같은 방식(`sha256` → `urlsafe_b64encode`)으로 Fernet 키를 만든다.
 
 ```typescript
-import { createHash, createCipheriv, createHmac, randomBytes } from 'crypto';
-
-function deriveKey(secret: string): { signingKey: Buffer; encryptionKey: Buffer } {
-  const hash = createHash('sha256').update(secret).digest();
+function deriveFernetKey(rawKey: string) {
+  const keyBytes = crypto.createHash('sha256').update(rawKey, 'utf8').digest();
   return {
-    signingKey: hash.subarray(0, 16),
-    encryptionKey: hash.subarray(16, 32),
+    signingKey: keyBytes.subarray(0, 16),
+    encryptionKey: keyBytes.subarray(16, 32),
   };
 }
 ```
 
-### 암호화
+암호화는 버전 `0x80`, 현재 시각, 랜덤 IV, AES-128-CBC 암호문을 이어 붙이고 그 전체에 HMAC을 붙인다.
 
 ```typescript
-function encrypt(plaintext: string, secret: string): string {
-  const { signingKey, encryptionKey } = deriveKey(secret);
+const payload = Buffer.concat([version, timestamp, iv, ciphertext]);
+const hmac = crypto.createHmac('sha256', signingKey).update(payload).digest();
+return Buffer.concat([payload, hmac]).toString('base64url') + '==';
+```
 
-  const version = Buffer.from([0x80]);
-  const timestamp = Buffer.alloc(8);
-  timestamp.writeBigUInt64BE(BigInt(Math.floor(Date.now() / 1000)));
+복호화는 형식과 서명부터 확인하고, 통과한 뒤에만 복호화한다.
 
-  const iv = randomBytes(16);
-  const cipher = createCipheriv('aes-128-cbc', encryptionKey, iv);
-  const ciphertext = Buffer.concat([
-    cipher.update(plaintext, 'utf-8'),
-    cipher.final(),
-  ]);
-
-  const payload = Buffer.concat([version, timestamp, iv, ciphertext]);
-
-  const hmac = createHmac('sha256', signingKey).update(payload).digest();
-
-  return Buffer.concat([payload, hmac]).toString('base64url');
+```typescript
+if (tokenBytes.length < 57 || tokenBytes[0] !== 0x80) {
+  throw new Error('Invalid Fernet token');
+}
+const expectedHmac = crypto.createHmac('sha256', signingKey).update(payload).digest();
+if (!crypto.timingSafeEqual(tokenHmac, expectedHmac)) {
+  throw new Error('Invalid Fernet token: HMAC mismatch');
 }
 ```
 
-### 복호화
+HMAC 비교에 `===` 대신 `timingSafeEqual`을 쓴 이유는 단순 비교가 첫 번째로 다른 바이트에서 바로 끝나서 응답 시간 차이로 서명을 추측당할 수 있기 때문이다.
 
-복호화에서 가장 중요한 것은 **HMAC 검증을 먼저 하는 것**입니다. 서명이 유효하지 않으면 복호화를 시도하지 않습니다.
+## 쓰이는 곳
 
-```typescript
-import { timingSafeEqual } from 'crypto';
+`insurance.service.ts`에서 사용자가 입력한 Hyphen 비밀번호를 `encryptHyphenPw`로 암호화해 `hyphenUserPwEnc` 컬럼에 저장하고, 조회할 때 `decryptHyphenPw`로 푼다. 조회 결과는 Redis에 30일 캐싱하고, 갱신은 24시간에 5회로 제한한다.
 
-function decrypt(token: string, secret: string): string {
-  const { signingKey, encryptionKey } = deriveKey(secret);
-  const data = Buffer.from(token, 'base64url');
+## 확인할 것
 
-  // 최소 길이 검증 (version 1 + timestamp 8 + iv 16 + hmac 32 = 57)
-  if (data.length < 57) {
-    throw new Error('유효하지 않은 토큰입니다');
-  }
-
-  const payload = data.subarray(0, data.length - 32);
-  const hmac = data.subarray(data.length - 32);
-
-  // HMAC 검증 (타이밍 안전 비교)
-  const expectedHmac = createHmac('sha256', signingKey).update(payload).digest();
-  if (!timingSafeEqual(hmac, expectedHmac)) {
-    throw new Error('토큰 검증에 실패했습니다');
-  }
-
-  const iv = payload.subarray(9, 25);
-  const ciphertext = payload.subarray(25);
-
-  const decipher = createDecipheriv('aes-128-cbc', encryptionKey, iv);
-  return Buffer.concat([
-    decipher.update(ciphertext),
-    decipher.final(),
-  ]).toString('utf-8');
-}
-```
-
-## 보안 고려사항
-
-### timingSafeEqual
-
-`hmac === expectedHmac` 같은 단순 비교는 타이밍 공격에 취약합니다. 문자열 비교는 첫 번째 다른 바이트에서 즉시 반환하기 때문에, 공격자가 응답 시간 차이를 측정해서 올바른 HMAC을 추론할 수 있습니다.
-
-`crypto.timingSafeEqual`은 입력 길이와 관계없이 일정한 시간에 비교를 완료합니다.
-
-### 토큰 포맷 검증
-
-복호화 전에 버전 바이트(`0x80`)와 최소 길이를 검증합니다. 잘못된 입력이 `createDecipheriv`까지 도달하면 예측하기 어려운 에러가 발생할 수 있습니다.
-
-## 실제 적용
-
-이 암호화 모듈은 Hyphen API 연동에서 다음과 같이 사용됩니다:
-
-- 사용자의 간편인증 비밀번호를 Fernet으로 암호화해서 Redis에 30일 캐싱
-- API 호출 시 복호화해서 Hyphen에 전달
-- 일일 5회 조회 제한과 결합해 비용 효율 확보
-
-## 교훈
-
-이종 언어 간 암호화 호환을 구현할 때 중요한 점:
-
-1. **스펙 문서를 먼저 읽자** — Fernet은 [스펙 문서](https://github.com/fernet/spec/blob/master/Spec.md)가 명확합니다. npm 패키지를 쓰기 전에 스펙을 읽으면 직접 구현이 그리 어렵지 않습니다.
-2. **테스트 벡터로 검증** — Python에서 암호화한 토큰을 Node.js에서 복호화하는 테스트를 반드시 작성합니다.
-3. **보안은 타협하지 않기** — `timingSafeEqual`, 포맷 검증, HMAC-then-decrypt 순서 등은 "있으면 좋은" 것이 아니라 필수입니다.
+- 이 모듈이 Python Fernet과 실제로 호환되는지 확인하는 방법은 Python에서 만든 토큰을 Node에서 풀고, 그 반대도 해 보는 것이다. 레포의 테스트는 암호화 함수를 mock으로 대체하고 있어서 이 교차 테스트는 없다.
+- `base64url` 뒤에 `==`를 고정으로 붙인다. 토큰 길이에 따라 필요한 패딩 개수가 달라질 수 있어서, 길이별로 Python이 문제없이 받는지 확인이 필요하다.
