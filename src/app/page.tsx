@@ -35,10 +35,13 @@ const SOCIAL_LINKS = [
 
 /* 홈페이지에 보여줄 프로젝트별 한 줄 설명 (프로덕트 엔지니어 관점) */
 const PROJECT_SHORT_DESC: Record<string, string> = {
-  "intalk-care": "매칭 스코어 UX · 7단계 온보딩 설계",
-  "intalk-partners": "퍼널 지표 설계 · AI 콘텐츠 자동화",
-  "gymlight-manager": "다지점 관리 대시보드",
-  "run-fit": "러닝 크루 탐색 · 필터 인터랙션",
+  "sairo-rn": "Capacitor 앱을 React Native로 옮긴 스파이크",
+  "cultural-fit-busan": "부산 외국인 장소 추천 · 다국어 · 앱 빌드",
+  "moodfit": "분위기로 찾는 패션 · 웹·앱 공용 빌드",
+  "intalk-care": "후보자 매칭 플랫폼 · 7일 독점·재배정 수정",
+  "intalk-partners": "광고 전환 이벤트 · 리드 수집 파이프라인",
+  "gymlight-manager": "다지점 관리 대시보드 · 지점 접근 분리",
+  "run-fit": "러닝 크루 탐색 · URL 기반 필터",
 };
 
 export default function Home() {
