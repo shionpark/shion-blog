@@ -3,7 +3,7 @@ title: "양면 마켓플레이스의 상태 동기화 설계 — 파트너스 �
 description: "독립 배포되는 두 서비스 간 온보딩 상태를 어떻게 일관성 있게 동기화할 것인가에 대한 설계 과정과 트레이드오프를 정리했다."
 date: "2026-08-05"
 tags: ["NestJS", "Express", "Prisma", "아키텍처", "마켓플레이스", "상태동기화"]
-published: true
+published: false
 ---
 
 ## 배경

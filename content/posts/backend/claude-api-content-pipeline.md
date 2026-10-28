@@ -3,7 +3,7 @@ title: "Claude API로 콘텐츠 자동 생성 파이프라인 구축하기"
 description: "보험 교육 플랫폼에서 Claude API를 활용해 교육 콘텐츠, Daily Briefing, 캠페인 분석 리포트를 자동 생성하는 파이프라인을 설계하고 운영한 경험을 정리한다."
 date: "2026-08-03"
 tags: ["NestJS", "Claude API", "Anthropic", "AI", "콘텐츠 자동화"]
-published: true
+published: false
 ---
 
 ## 들어가며

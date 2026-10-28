@@ -3,7 +3,7 @@ title: "AI 자동화의 적정선 — 품질 점수 8점이 만든 발행 기준
 description: "키워드 트렌드 기반 AI 블로그 자동 생성 파이프라인에서 자동화 범위와 사람 개입 지점을 정한 과정."
 date: "2026-08-13"
 tags: ["UX 설계", "인톡 파트너스", "AI"]
-published: true
+published: false
 ---
 
 ## 배경

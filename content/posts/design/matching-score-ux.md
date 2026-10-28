@@ -3,7 +3,7 @@ title: "검색 결과에 판단 기준 넣기 — 매칭 스코어 UX 설계"
 description: "후보자 30명 중 누구부터 봐야 할지 모르는 문제를 매칭 스코어와 등급 체계로 풀어간 과정입니다."
 date: "2026-08-12"
 tags: ["UX 설계", "인톡 케어", "매칭"]
-published: true
+published: false
 ---
 
 ## 문제

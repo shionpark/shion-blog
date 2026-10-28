@@ -3,7 +3,7 @@ title: "3단계 UTM 매칭 알고리즘으로 광고 성과를 추적한 경험"
 description: "감에 의존하던 마케팅 의사결정을 데이터 기반으로 전환하기 위해 UTM 캠페인 분석 엔진을 설계하고 구축한 과정을 공유합니다."
 date: "2026-06-07"
 tags: ["NestJS", "UTM", "Meta Ads", "분석"]
-published: true
+published: false
 ---
 
 ## 문제 상황

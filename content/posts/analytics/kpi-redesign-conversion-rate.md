@@ -3,7 +3,7 @@ title: "팀 KR을 데이터로 바꾸다 — 절대 건수에서 전환율 기�
 description: "주당 가입 100명이라는 비현실적 KR을 퍼널 데이터로 분해하고, 전환율 기반 KR로 재설계한 과정."
 date: "2026-08-24"
 tags: ["데이터 분석", "인톡 파트너스", "KPI"]
-published: true
+published: false
 ---
 
 ## 배경

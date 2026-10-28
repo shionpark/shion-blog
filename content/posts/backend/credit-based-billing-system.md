@@ -3,7 +3,7 @@ title: "NestJS + Prisma로 크레딧 기반 과금 시스템 설계하기"
 description: "SaaS 구독 대신 크레딧 모델을 선택한 이유와, 충전·차감·환불·독점 기간까지 하나의 트랜잭션으로 묶어낸 실무 설계 과정을 정리했다."
 date: "2026-08-04"
 tags: ["NestJS", "Prisma", "PostgreSQL", "과금", "크레딧", "카카오페이"]
-published: true
+published: false
 ---
 
 ## 배경
