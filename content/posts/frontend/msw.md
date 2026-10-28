@@ -1,6 +1,6 @@
 ---
 title: "MSW로 API 모킹 환경 구축하기"
-description: "Mock Service Worker를 도입해 백엔드 없이 프론트엔드 개발 속도를 높이고, 엣지 케이스를 안정적으로 테스트한 경험을 공유합니다."
+description: "Mock Service Worker로 백엔드 없이 개발하고, 지연·에러·빈 데이터 같은 케이스를 재현하는 설정을 정리한다."
 date: "2025-08-31"
 tags: ["MSW", "테스트", "API", "React"]
 published: true
@@ -179,10 +179,3 @@ test("에러 발생 시 에러 메시지를 표시한다", async () => {
   expect(await screen.findByText("에러가 발생했습니다")).toBeInTheDocument();
 });
 ```
-
-## 정리
-
-- MSW는 네트워크 레벨에서 요청을 인터셉트하므로, 실제 코드를 수정하지 않고 모킹 가능
-- 백엔드 API가 미완성인 상태에서도 프론트엔드 개발을 병렬로 진행할 수 있다
-- 에러, 지연, 빈 데이터 등 엣지 케이스를 쉽게 재현할 수 있다
-- 브라우저(개발)와 Node.js(테스트) 양쪽에서 같은 핸들러를 재사용할 수 있다
