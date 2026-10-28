@@ -6,7 +6,7 @@ period: "2026.03 ~ 2026.09"
 stack: ["Next.js", "React", "NestJS", "FastAPI", "PostgreSQL", "Redis"]
 url: "https://www.intalkpartners.com"
 published: true
-order: 5
+order: 4
 ---
 
 보험설계사와 GA(보험대리점)를 연결하는 스타트업의 설계사용 플랫폼입니다. 입사 3주차에 전임 개발자가 떠난 뒤 화면과 API를 맡았고, 근무 기간 커밋 중 프론트엔드 86%, 백엔드 84%를 작성했습니다.

@@ -7,7 +7,7 @@ stack: ["Next.js", "TypeScript", "Tailwind CSS", "Supabase", "Capacitor"]
 url: "https://mood-app-blond.vercel.app"
 github: "https://github.com/moodyfit/mood-app"
 published: true
-order: 3
+order: 2
 ---
 
 옷 이름이 아니라 분위기로 검색해 패션을 찾는 서비스입니다. 3인 팀이고 저는 8월 중순부터 프론트엔드와 앱 빌드를 맡았습니다.

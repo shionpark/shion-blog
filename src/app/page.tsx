@@ -35,8 +35,7 @@ const SOCIAL_LINKS = [
 
 /* 홈페이지에 보여줄 프로젝트별 한 줄 설명 (프로덕트 엔지니어 관점) */
 const PROJECT_SHORT_DESC: Record<string, string> = {
-  "sairo-rn": "Capacitor 앱을 React Native로 옮긴 스파이크",
-  "cultural-fit-busan": "부산 외국인 장소 추천 · 다국어 · 앱 빌드",
+  "sairo": "부산 외국인 장소 추천 · 앱 빌드 · RN 전환 스파이크",
   "moodfit": "분위기로 찾는 패션 · 웹·앱 공용 빌드",
   "intalk-care": "후보자 매칭 플랫폼 · 7일 독점·재배정 수정",
   "intalk-partners": "광고 전환 이벤트 · 리드 수집 파이프라인",

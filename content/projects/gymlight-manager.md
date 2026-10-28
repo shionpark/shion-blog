@@ -7,7 +7,7 @@ stack: ["React", "TypeScript", "TanStack Query", "Recoil", "Emotion", "Storybook
 url: "https://gymlight-demo.vercel.app"
 github: "https://github.com/shionpark/gymlight-demo"
 published: true
-order: 7
+order: 6
 ---
 
 5개 지점, 회원 10,000명 이상인 헬스장의 운영 관리 시스템입니다. 회원, 직원, 상품, 락커, 출석, 통계 데이터를 한 대시보드에서 관리합니다.

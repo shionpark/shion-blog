@@ -6,7 +6,7 @@ period: "2026.07 ~ 2026.09"
 stack: ["React", "Express", "Prisma", "PostgreSQL"]
 url: "https://intalkcare.com"
 published: true
-order: 4
+order: 3
 ---
 
 GA(보험대리점)가 보험 설계사 후보자를 검색·구매·온보딩하고 관리하는 양면 마켓플레이스입니다. 7월 말에 운영 중이던 이 서비스를 넘겨받아 개발과 운영을 이어 갔습니다. 근무 기간 백엔드 커밋의 약 39%, 프론트엔드 커밋의 약 20%가 제 커밋입니다.
