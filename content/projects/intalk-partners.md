@@ -2,7 +2,7 @@
 title: "인톡 파트너스 2.0"
 description: "보험설계사 육성 SaaS 플랫폼. 퍼널 지표 설계, LLM 기반 콘텐츠 자동화, 보험 조회 마이크로서비스를 단독 구축했습니다."
 role: "프로덕트 엔지니어"
-period: "2026.03 ~ 현재"
+period: "2026.03 ~ 2026.09"
 stack: ["Next.js", "React", "NestJS", "PostgreSQL", "Redis", "Claude API"]
 url: "https://www.intalkpartners.com"
 published: true

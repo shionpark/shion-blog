@@ -10,10 +10,10 @@ const CAREER: CareerEntry[] = [
   {
     company: "인톡",
     role: "프로덕트 엔지니어",
-    period: "2026.03 ~ 현재",
+    period: "2026.03 ~ 2026.09",
     description:
       "보험설계사 육성 SaaS 플랫폼의 프론트엔드·백엔드·AI 자동화·분석 인프라를 단독 운영. 퍼널 지표 설계, LLM 기반 콘텐츠 자동화, 보험 조회 마이크로서비스 구축.",
-    isCurrent: true,
+    isCurrent: false,
   },
   {
     company: "비더라이트 컴퍼니",
