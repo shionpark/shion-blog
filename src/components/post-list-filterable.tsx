@@ -19,7 +19,6 @@ type CategoryTab = {
 
 const CATEGORY_TABS: CategoryTab[] = [
   { key: "all", label: "전체", categories: [] },
-  { key: "design", label: "Design", categories: ["design"] },
   { key: "frontend", label: "Frontend", categories: ["frontend"] },
   { key: "backend", label: "Backend", categories: ["backend", "analytics"] },
   { key: "career", label: "Career", categories: ["career", "general"] },
