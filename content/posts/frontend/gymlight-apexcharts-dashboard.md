@@ -29,8 +29,8 @@ published: true
 
 통계 데이터를 시각화하기 위해 선택한 차트 라이브러리는 **ApexCharts**다. 이전 프로젝트에서도 사용한 경험이 있어 빠르게 적용할 수 있었고, 다음과 같은 장점이 있었다.
 
-> **ApexCharts
-> **JavaScript 기반의 차트 라이브러리로, 다양한 차트 유형을 손쉽게 생성할 수 있으며, 풍부한 옵션 제공 및 반응형 지원이 특징이다.
+> **ApexCharts**
+> JavaScript 기반의 차트 라이브러리로, 다양한 차트 유형을 손쉽게 생성할 수 있으며, 풍부한 옵션 제공 및 반응형 지원이 특징이다.
 
 ### **ApexCharts 사용 시 느낀 장점**
 
@@ -187,7 +187,7 @@ const series = [
 이 차트는 연간(1~12월) 단위로 회원 등록/만료 수를 비교하여, 특정 시기에 회원 수가 크게 변동되는지 파악하는 데 유용하다.
 
 <details>
-<summary>**📄 관련 유틸 함수**</summary>
+<summary>관련 유틸 함수</summary>
 
 ```typescript
 export const countRegisteredMembersByMonth = (memberList: IMemberResponse[], month: number) =>
@@ -267,7 +267,7 @@ const attendanceData = allHours.map((hour) => {
 이 차트는 하루 중 어떤 시간대에 회원 방문이 집중되는지를 확인하는 용도로 설계됐다. 시계열 흐름을 강조하기 위해 area chart 유형을 사용했다.
 
 <details>
-<summary>**📄 관련 유틸 함수**</summary>
+<summary>관련 유틸 함수</summary>
 
 ```typescript
 export const useHourlyAttendanceStats = (attendanceList?: ICheckedMemberResponse[]) => {
@@ -316,7 +316,7 @@ const series = [active, expired, holding, due]; // status별 count
 운영 현황을 파악하는 데 있어 유의미한 데이터로, 사용자의 라이프사이클을 확인하고 CRM 전략에 적용할 수 있다.
 
 <details>
-<summary>**📄 관련 유틸 함수**</summary>
+<summary>관련 유틸 함수</summary>
 
 ```typescript
 export const countMemberStatus = (members: IMemberResponse[]) => {

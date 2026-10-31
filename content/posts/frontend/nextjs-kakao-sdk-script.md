@@ -8,7 +8,7 @@ published: true
 
 # Next.js에 Kakao 지도 세팅하기
 
-[Next.js 공식 문서](https://nextjs.org/docs/app/guides/scripts)에 의하면, Next.js에서 **외부 스크립트(third-party script)**를 로드하려면 next/script를 가져와서 레이아웃 구성 요소에 스크립트를 직접 포함해야 한다.
+[Next.js 공식 문서](https://nextjs.org/docs/app/guides/scripts)에 의하면, Next.js에서 **외부 스크립트**(third-party script)를 로드하려면 next/script를 가져와서 레이아웃 구성 요소에 스크립트를 직접 포함해야 한다.
 
 ## 외부 스크립트란?
 
@@ -90,11 +90,11 @@ useEffect는 (의존성 배열이 빈 배열인 경우) 브라우저에서 컴�
 
 [Hydration 과정](https://nextjs.org/docs/app/getting-started/server-and-client-components#how-do-server-and-client-components-work-in-nextjs)에 대해 다시 한 번 짚고 넘어가자. 
 
-**1. 서버 pre-render(SSR)
-**Next.js는 클라이언트 컴포넌트도 HTML을 만들어 응답한다. 여기서 window, document 같은 브라우저 API는 없다.
+**1. 서버 pre-render(SSR)**
+Next.js는 클라이언트 컴포넌트도 HTML을 만들어 응답한다. 여기서 window, document 같은 브라우저 API는 없다.
 
-**2. 브라우저 Hydration
-**동일한 트리를 다시 계산하고 이벤트 리스너를 붙인다.
+**2. 브라우저 Hydration**
+동일한 트리를 다시 계산하고 이벤트 리스너를 붙인다.
 이 단계 이후에야 진짜 브라우저 런타임(API) 접근이 안전하다.
 
 즉, 렌더 함수에서 브라우저 전용 코드를 직접 호출하면 서버 단계에서 오류가 나거나, 서버/클라이언트 출력이 달라져 ‘Hydration failed’ 경고가 뜬다.
