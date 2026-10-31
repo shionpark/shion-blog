@@ -13,11 +13,13 @@ const NAV_ITEMS = [
 export function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const [prevPathname, setPrevPathname] = useState(pathname);
 
   // 라우트 변경 시 메뉴 닫기
-  useEffect(() => {
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname);
     setIsOpen(false);
-  }, [pathname]);
+  }
 
   // 메뉴 열릴 때 스크롤 방지
   useEffect(() => {
