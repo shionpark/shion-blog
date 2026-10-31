@@ -20,11 +20,13 @@ order: 4
 - **비회원 신청과 Meta 리드 수집** — 비회원 신청을 DB에 저장하고, 나중에 같은 전화번호로 가입하면 기존 신청이 계정에 연결되게 했습니다. 손으로 옮기던 Meta 리드는 10분마다 DB와 케어 API로 들어가게 바꿨고, `leadgen_id`와 전화번호 해시로 중복을 걸렀습니다. 배포 후 같은 리드가 반복해서 들어오던 문제는 긴 숫자 컬럼을 문자열로 고정해 고쳤습니다.
 - **매칭 진행 상태 재설계** — 권한과 화면 분기에 쓰이는 필드는 그대로 두고, 진행 표시용 필드와 변경 이력 테이블을 따로 추가해 9개 상태로 나눴습니다. 케어 쪽 상태는 5분마다 읽어 동기화했습니다.
 - **보험 조회 서비스** — Hyphen API 연동. 계약·보장 조회는 NestJS가 직접 부르고, 캡차 인식과 암호화가 필요한 인증·계정 찾기 단계는 FastAPI 서비스로 분리했습니다. 조회 결과는 Redis에 30일 캐시하고 갱신은 24시간에 5회로 제한했습니다.
+- **팀 AX** — 셀피쉬클럽의 AAA Starter Kit으로 팀 볼트를 만들고, Notion 데일리스크럼을 읽어 주간 리포트를 만드는 명령어, Slack 알림, 볼트를 검색해 답하는 Slack 봇, 팀 아카이브 사이트를 붙였습니다. AX 컨설팅에서 합의한 3단계 로드맵을 문서로 정리하고 프로젝트 자동화 트랙을 맡았습니다.
 - **CI** — 5개 레포에 CI를 붙였습니다. 타입 체크·빌드·테스트만 머지를 막고, 린트는 바뀐 파일만 검사해 경고로 띄웠습니다.
 
 ## 관련 글
 
 - [GA4 · Mixpanel · 자체 DB — 3중 트래킹 불일치를 해소한 과정](/posts/triple-tracking-data-consistency)
+- [Notion 스크럼을 주간 분석 리포트로 — Claude Code 명령어와 Astro 사이트로 자동 발행](/posts/team-analytics-automation)
 - [Next.js에 Mixpanel 프록시를 붙이고 이벤트 이름 규칙을 정했다](/posts/mixpanel-nextjs-proxy)
 - [신청이 어디서 왔는지 남기기 — 비회원 신청과 Meta 리드를 한 DB로](/posts/guest-application-lead-pipeline)
 - [Redis TTL로 중복을 막았더니 알림톡이 매일 다시 나갔다](/posts/notification-infinite-loop-bug)
