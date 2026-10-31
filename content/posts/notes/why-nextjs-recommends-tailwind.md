@@ -1,7 +1,7 @@
 ---
 title: "Next.js는 왜 Tailwind를 권장할까?"
 description: "Next.js 공식 문서가 Tailwind를 먼저 소개하는 이유를 App Router의 서버 컴포넌트 제약과 빌드 방식으로 정리하고, Emotion과 Tailwind를 쓴 프로젝트에서 실제로 달랐던 점을 비교한다."
-date: "2026-11-01"
+date: "2025-07-04"
 tags: ["Next.js", "Tailwind CSS", "CSS-in-JS", "Emotion"]
 published: true
 ---
@@ -37,6 +37,8 @@ Tailwind에도 비용이 있다.
 - 조건이 늘면 클래스 문자열이 길어져 읽기 어려워진다.
 
 ## 두 방식을 쓴 프로젝트
+
+> 2026년 11월, 이후 프로젝트 경험을 덧붙였다.
 
 헬스장 관리 시스템(Gymlight)은 React 18과 webpack으로 빌드한, 브라우저에서만 렌더링하는 앱이었다. 스타일은 Emotion으로 썼고 컴포넌트마다 `*.styles.tsx` 파일을 따로 두어 117개가 됐다. 테마는 디자인 시스템 패키지의 Provider로 내려 주고 `emotion.d.ts`로 타입을 선언했다. 서버 렌더링이 없었으니 위의 SSR·Hydration 문제는 겪지 않았다. 이 글에서 말한 이유는 Next.js처럼 서버에서 렌더링할 때 의미가 있다.
 
