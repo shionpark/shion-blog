@@ -3,7 +3,7 @@ title: "FormData를 이용한 파일 업로드 기능 구현기"
 description: "FormData 기반 파일 처리, 다국어 파일명 대응, 다중 파일 업로드 및 Strict Mode 대응 등 실제 서비스 품질을 높이기 위한 개선 작업"
 date: "2025-04-28"
 tags: ["React", "\baxios"]
-published: true
+published: false
 ---
 
 ## 파일 데이터 처리 방식

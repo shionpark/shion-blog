@@ -3,7 +3,7 @@ title: "Date Picker"
 description: "Date Picker의 범위 선택 UX, 지난 날짜 비활성화, 스타일 우선순위 충돌 등 핵심 UX 문제를 개선한 과정을 정리합니다."
 date: "2026-01-02"
 tags: []
-published: true
+published: false
 ---
 
 최근 프로젝트 요구사항에 맞춰 Calendar(DatePicker) 컴포넌트를 전반적으로 개선했습니다.
