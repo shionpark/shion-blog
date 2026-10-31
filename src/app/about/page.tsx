@@ -15,11 +15,11 @@ type SkillGroup = {
 const SKILL_GROUPS: SkillGroup[] = [
   {
     label: "Frontend",
-    skills: ["React", "Next.js", "TypeScript", "TanStack Query", "Recoil", "Tailwind CSS", "Storybook"],
+    skills: ["React", "Next.js", "TypeScript", "TanStack Query", "Recoil", "Emotion", "Tailwind CSS", "React Hook Form · Zod", "Storybook"],
   },
   {
     label: "Backend",
-    skills: ["NestJS", "FastAPI", "Prisma", "PostgreSQL", "Redis"],
+    skills: ["NestJS", "Express", "FastAPI", "Prisma", "PostgreSQL", "Redis"],
   },
   {
     label: "Mobile",
