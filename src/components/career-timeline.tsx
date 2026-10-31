@@ -28,7 +28,7 @@ const CAREER: CareerEntry[] = [
     role: "데이터 분석가",
     period: "2022.05 ~ 2022.08",
     description:
-      "미리캔버스 광고 성과 분석.",
+      "비즈캔버스 광고 성과 분석. 네이버·구글·다음 광고 유입 데이터를 정리해 리포트 작성.",
     isCurrent: false,
   },
   {
