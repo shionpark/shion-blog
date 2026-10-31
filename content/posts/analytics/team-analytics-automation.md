@@ -4,6 +4,7 @@ description: "Notion 데일리스크럼을 Claude Code 슬래시 명령어로 �
 date: "2026-08-21"
 tags: ["자동화", "Claude Code", "Astro", "Notion API"]
 published: true
+featured: true
 ---
 
 ## 무엇을 만들었나
