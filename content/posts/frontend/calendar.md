@@ -4,6 +4,7 @@ description: "Calendar 컴포넌트의 UX 개선 과정에서 타입 설계 문�
 date: "2025-12-16"
 tags: ["ui/ux", "shadcn", "react-day-picker", "TypeScript"]
 published: true
+featured: true
 ---
 
 최근 프로젝트 요구사항에 맞춰 Calendar(DatePicker) 컴포넌트를 전반적으로 개선했습니다.

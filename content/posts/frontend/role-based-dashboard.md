@@ -4,6 +4,7 @@ description: "헬스장 관리 시스템에서 매니저가 타 지점 정보를
 date: "2025-03-03"
 tags: ["Gymlight", "React", "Recoil", "권한"]
 published: true
+featured: true
 ---
 
 ## 버그 리포트

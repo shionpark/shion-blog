@@ -4,6 +4,7 @@ description: "광고 차단기에 막히는 Mixpanel 요청을 자사 도메인 
 date: "2026-06-04"
 tags: ["Next.js", "Mixpanel", "Analytics", "프록시"]
 published: true
+featured: true
 ---
 
 ## 왜 프록시를 붙였나

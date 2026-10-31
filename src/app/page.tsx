@@ -44,7 +44,9 @@ const PROJECT_SHORT_DESC: Record<string, string> = {
 };
 
 export default function Home() {
-  const recentPosts = getAllPosts().slice(0, 5);
+  const posts = getAllPosts();
+  const featuredPosts = posts.filter((post) => post.featured);
+  const recentPosts = featuredPosts.length > 0 ? featuredPosts : posts.slice(0, 5);
   const projects = getAllProjects();
 
   return (

@@ -4,6 +4,7 @@ description: "필터 상태의 SSOT를 URL로 확립하고, Suspense와 팀에�
 date: "2026-01-05"
 tags: ["React", "Suspense", "Suspensive", "useSearchParams", "Next.js"]
 published: true
+featured: true
 ---
 
 팀 프로젝트에서 세션·크루 목록 페이지의 필터 로직을 개선하면서 겪은 문제와 고민의 흐름을 정리했습니다.

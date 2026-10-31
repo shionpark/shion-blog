@@ -4,6 +4,7 @@ export type PostFrontmatter = {
   date: string;
   tags: string[];
   published: boolean;
+  featured?: boolean;
 };
 
 export type PostMeta = PostFrontmatter & {

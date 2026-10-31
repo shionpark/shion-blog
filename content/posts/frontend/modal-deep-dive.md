@@ -4,6 +4,7 @@ description: "모달이 1개일 때는 간단하지만, 20개로 늘어나면 �
 date: "2025-08-25"
 tags: ["React", "모달", "설계패턴", "리팩토링"]
 published: true
+featured: true
 ---
 
 ## 모달은 왜 복잡해지는가
