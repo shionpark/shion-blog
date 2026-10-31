@@ -10,11 +10,11 @@ Run Fit은 4명이 만든 러닝 크루 탐색 서비스다. 프로젝트 초반
 
 ## 처음 정한 구조
 
-폴더 구조는 프로젝트 첫 주에 팀이 같이 이야기하며 정했고, 준영 님이 PR로 정리했다(#16). `app` 아래에 페이지를 두고, 공용 컴포넌트는 `components` 아래에 ui, composite처럼 역할별로 나눴다.
+폴더 구조는 프로젝트 첫 주에 팀이 같이 이야기하며 정했고, 준영 님이 PR로 정리했다([#16](https://github.com/runfit26/run-fit/pull/16)). `app` 아래에 페이지를 두고, 공용 컴포넌트는 `components` 아래에 ui, composite처럼 역할별로 나눴다.
 
-컴포넌트가 늘면서 한 폴더에 같은 계층으로 쌓이는 게 불편해졌다. 그래서 컴포넌트 폴더 규칙을 정하자는 이슈를 올렸다(#127). 대표 파일을 `index.tsx`로 둘지, `Button.tsx`를 두고 re-export용 `index.ts`를 따로 둘지, 상위 폴더에 barrel 파일을 둘지를 비교했다. 상위 barrel은 팀 회의에서 뺐다.
+컴포넌트가 늘면서 한 폴더에 같은 계층으로 쌓이는 게 불편해졌다. 그래서 컴포넌트 폴더 규칙을 정하자는 이슈를 올렸다([#127](https://github.com/runfit26/run-fit/pull/127)). 대표 파일을 `index.tsx`로 둘지, `Button.tsx`를 두고 re-export용 `index.ts`를 따로 둘지, 상위 폴더에 barrel 파일을 둘지를 비교했다. 상위 barrel은 팀 회의에서 뺐다.
 
-나는 대표 컴포넌트를 `index.tsx`로 통일했다(#128). Next.js는 폴더 이름으로 개념을 나타내고, 안의 파일은 `page.tsx`, `layout.tsx`처럼 역할 이름으로 둔다. 컴포넌트도 같은 규칙을 따르면 레포 전체가 한 방식으로 읽힌다고 봤다.
+나는 대표 컴포넌트를 `index.tsx`로 통일했다([#128](https://github.com/runfit26/run-fit/pull/128)). Next.js는 폴더 이름으로 개념을 나타내고, 안의 파일은 `page.tsx`, `layout.tsx`처럼 역할 이름으로 둔다. 컴포넌트도 같은 규칙을 따르면 레포 전체가 한 방식으로 읽힌다고 봤다.
 
 ```
 Button/
@@ -25,9 +25,9 @@ Button/
 
 ## 도메인 기준 구조를 제안했다
 
-진우 님이 크루 API에 Query Factory를 도입한 PR(#130)에서 query와 mutation을 어디에 둘지 이야기가 나왔다. query는 `src/queries`에, mutation 훅은 `src/hooks`에 있어서 같이 바뀌는 코드가 멀리 떨어져 있다는 의견이었다.
+진우 님이 크루 API에 Query Factory를 도입한 PR([#130](https://github.com/runfit26/run-fit/pull/130))에서 query와 mutation을 어디에 둘지 이야기가 나왔다. query는 `src/queries`에, mutation 훅은 `src/hooks`에 있어서 같이 바뀌는 코드가 멀리 떨어져 있다는 의견이었다.
 
-나는 그때 회원가입과 세션 생성 폼에 Zod 검증을 붙이고 있었다. 작업해 보니 폼 컴포넌트, 폼 훅, 검증 스키마, API 호출이 늘 같은 도메인 안에서 같이 바뀌었다. 로그인 폼이 스키마를 `../../../libs/auth/userSchema`처럼 먼 경로에서 가져오는 것도 어색했다. path alias는 프로젝트 초기에 내가 설정해 두었으니(#13) 경로는 줄일 수 있었다. 하지만 같이 바뀌는 파일이 떨어져 있다는 사실은 그대로였다.
+나는 그때 회원가입과 세션 생성 폼에 Zod 검증을 붙이고 있었다. 작업해 보니 폼 컴포넌트, 폼 훅, 검증 스키마, API 호출이 늘 같은 도메인 안에서 같이 바뀌었다. 로그인 폼이 스키마를 `../../../libs/auth/userSchema`처럼 먼 경로에서 가져오는 것도 어색했다. path alias는 프로젝트 초기에 내가 설정해 두었으니([#13](https://github.com/runfit26/run-fit/pull/13)) 경로는 줄일 수 있었다. 하지만 같이 바뀌는 파일이 떨어져 있다는 사실은 그대로였다.
 
 그래서 앞선 댓글에서 정리된 역할 구분(queryKey, fetch, query, mutation)을 이어받아, 도메인 폴더 안에 api, components, hooks, validations를 함께 두는 구조를 제안했다.
 
@@ -70,7 +70,7 @@ src/api/
 
 팀 구조는 그대로 쓰기로 했다. 대신 "같이 바뀌는 코드는 가까이 둔다"는 생각은 Next.js 관례 안에서 풀었다.
 
-세션 필터를 리팩토링하던 중, 페이지마다 컴포넌트 위치가 제각각이라 코드를 찾기 어려웠다. 석준 님이 세션 생성 페이지에서 먼저 쓴 Next.js private folder 패턴(#248)을 따라, 그 페이지에서만 쓰는 컴포넌트를 페이지 옆 `_components`로 옮겼다(#330). `_`로 시작하는 폴더는 라우트에 포함되지 않는다.
+세션 필터를 리팩토링하던 중, 페이지마다 컴포넌트 위치가 제각각이라 코드를 찾기 어려웠다. 석준 님이 세션 생성 페이지에서 먼저 쓴 Next.js private folder 패턴([#248](https://github.com/runfit26/run-fit/pull/248))을 따라, 그 페이지에서만 쓰는 컴포넌트를 페이지 옆 `_components`로 옮겼다([#330](https://github.com/runfit26/run-fit/pull/330)). `_`로 시작하는 폴더는 라우트에 포함되지 않는다.
 
 ```
 app/sessions/

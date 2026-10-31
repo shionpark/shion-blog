@@ -17,7 +17,7 @@ UX 문제와 타입 설계의 한계가 자연스럽게 연결되어 있다는 �
 Calendar 컴포넌트의 **구조와 타입 설계를 함께 재정비하게 된 과정**을 정리한 기록입니다.
 
 구조 개선 전반에 대한 논의는  
-[관련 Discussion](https://github.com/fesi12-team1/run-fit/discussions/114)에 정리되어 있으며,  
+[관련 Discussion](https://github.com/runfit26/run-fit/discussions/114)에 정리되어 있으며,  
 본 글에서는 **UX에 직접적인 영향을 준 문제와 그 해결 과정**에 집중합니다.
 
 ---
