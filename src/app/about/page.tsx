@@ -4,7 +4,7 @@ import { PersonJsonLd } from "@/components/json-ld";
 
 export const metadata: Metadata = {
   title: "About",
-  description: "Seoyoung Park — 사용자 경험 설계부터 구현·개선까지, 제품이 더 나아지는 과정을 만드는 프로덕트 엔지니어.",
+  description: "Seoyoung Park — 사용자 경험 설계부터 구현·개선까지, 제품이 더 나아지는 과정을 만드는 프론트엔드 개발자.",
 };
 
 type SkillGroup = {
@@ -41,7 +41,7 @@ export default function AboutPage() {
         <h1 className="text-base font-bold mb-4">Seoyoung Park</h1>
         <div className="flex flex-col gap-3 text-[15px] leading-[1.7] text-muted-foreground">
           <p>
-            사용자 경험 설계부터 구현·개선까지, 제품이 더 나아지는 과정을 만드는 프로덕트 엔지니어입니다.
+            사용자 경험 설계부터 구현·개선까지, 제품이 더 나아지는 과정을 만드는 프론트엔드 개발자입니다.
           </p>
           <p>
             광고 성과를 분석하던 시절에도 숫자가 어디서 만들어졌는지부터 확인했고,

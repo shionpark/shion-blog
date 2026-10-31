@@ -1,7 +1,7 @@
 ---
 title: "인톡 케어"
 description: "GA가 보험 설계사 후보자를 검색·구매·온보딩하는 매칭 플랫폼. 전임 담당자가 개발하던 서비스를 넘겨받아 파트너스 연동과 운영을 맡았습니다."
-role: "프로덕트 엔지니어"
+role: "프론트엔드 개발자"
 period: "2026.07 ~ 2026.09"
 stack: ["React", "Express", "Prisma", "PostgreSQL"]
 url: "https://intalkcare.com"

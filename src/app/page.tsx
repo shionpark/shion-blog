@@ -33,7 +33,7 @@ const SOCIAL_LINKS = [
   },
 ] as const;
 
-/* 홈페이지에 보여줄 프로젝트별 한 줄 설명 (프로덕트 엔지니어 관점) */
+/* 홈페이지에 보여줄 프로젝트별 한 줄 설명 (프론트엔드 개발자 관점) */
 const PROJECT_SHORT_DESC: Record<string, string> = {
   "sairo": "부산 외국인 장소 추천 · 앱 빌드 · RN 전환 스파이크",
   "moodfit": "분위기로 찾는 패션 · 웹·앱 공용 빌드",
@@ -63,7 +63,7 @@ export default function Home() {
         />
         <h1 className="text-base font-bold mb-2">Seoyoung Park</h1>
         <p className="text-[15px] leading-[1.65] mb-5">
-          사용자 경험 설계부터 구현·개선까지, 제품이 더 나아지는 과정을 만드는 프로덕트 엔지니어입니다.
+          사용자 경험 설계부터 구현·개선까지, 제품이 더 나아지는 과정을 만드는 프론트엔드 개발자입니다.
           복잡한 도메인을 쉬운 인터페이스로, 반복되는 작업을 자동화로 바꿉니다.
         </p>
         <div className="flex gap-3.5">

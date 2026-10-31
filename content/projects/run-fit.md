@@ -1,7 +1,7 @@
 ---
 title: "Run Fit"
 description: "지역 기반 러닝 크루·세션 탐색 플랫폼. 코드잇 부트캠프 팀 프로젝트에서 URL 기반 필터 상태와 섹션별 Suspense 경계, 공용 컴포넌트를 맡았습니다."
-role: "프론트엔드 엔지니어"
+role: "프론트엔드 개발자"
 period: "2025.12 ~ 2026.01"
 stack: ["Next.js", "React", "TypeScript"]
 url: "https://run-fit-eight.vercel.app/sessions"

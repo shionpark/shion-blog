@@ -9,7 +9,7 @@ type CareerEntry = {
 const CAREER: CareerEntry[] = [
   {
     company: "인톡",
-    role: "프로덕트 엔지니어",
+    role: "프론트엔드 개발자 · Team Lead",
     period: "2026.03 ~ 2026.09",
     description:
       "보험설계사 육성 SaaS 플랫폼의 화면과 API를 전임 개발자 퇴사 후 맡음. 광고 전환 이벤트 정리, 비회원 신청·Meta 리드 수집 파이프라인, 매칭 진행 상태 재설계, 보험 조회 서비스 연동.",

@@ -1,7 +1,7 @@
 ---
 title: "인톡 파트너스"
 description: "보험설계사 육성 SaaS 플랫폼. 전임 개발자가 떠난 뒤 화면과 API를 맡아 광고 전환 이벤트, 비회원 신청·Meta 리드 수집, 보험 조회 서비스를 구현했습니다."
-role: "프로덕트 엔지니어"
+role: "프론트엔드 개발자"
 period: "2026.03 ~ 2026.09"
 stack: ["Next.js", "React", "NestJS", "FastAPI", "PostgreSQL", "Redis"]
 url: "https://www.intalkpartners.com"
