@@ -3,7 +3,7 @@ title: "Next.js"
 description: "Next.js의 Navigation 동작 원리, 서버/클라이언트 컴포넌트 렌더링 과정, 스크립트 로드 최적화 전략을 정리합니다."
 date: "2025-07-05"
 tags: []
-published: true
+published: false
 ---
 
 # Linking and Navigating

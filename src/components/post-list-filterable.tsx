@@ -23,6 +23,7 @@ const CATEGORY_TABS: CategoryTab[] = [
   { key: "backend", label: "Backend", categories: ["backend"] },
   { key: "data", label: "Data", categories: ["analytics"] },
   { key: "devops", label: "DevOps·협업", categories: ["devops"] },
+  { key: "notes", label: "Notes", categories: ["notes"] },
 ];
 
 export function PostListFilterable({ posts }: PostListFilterableProps) {

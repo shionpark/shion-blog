@@ -1,6 +1,6 @@
 ---
 title: "React.memo() 현명하게 사용하기"
-description: "React.memo를 언제 써야 하고 언제 피해야 하는지, 실제 프로젝트에서 겪은 사례와 함께 정리합니다."
+description: "React.memo를 언제 써야 하고 언제 피해야 하는지, 예제 코드와 판단 기준으로 정리합니다."
 date: "2025-08-26"
 tags: ["React", "성능최적화", "React.memo", "useMemo"]
 published: true

@@ -57,7 +57,7 @@ Tailwind는 런타임에 추가 로직을 거의 남기지 않고, 빌드 시점
 
 ## **5. 내 경험: CSS-in-JS 남용에서 배운 점**
 
-Gymlight 프로젝트 초기에는 styled-components를 사용했다.
+Gymlight 프로젝트에서는 Emotion(`@emotion/styled`)을 사용했다.
 
 props에 따라 조건부 스타일을 쉽게 처리할 수 있었지만, 점점 **코드가 무거워지고, 빌드 성능과 유지보수성이 떨어졌다.**
 
