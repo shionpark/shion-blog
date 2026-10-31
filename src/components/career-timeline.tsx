@@ -28,7 +28,7 @@ const CAREER: CareerEntry[] = [
     role: "데이터 분석가",
     period: "2022.05 ~ 2022.08",
     description:
-      "미리캔버스의 광고 성과 분석을 위한 핵심 지표 정의. 네이버·구글·다음 광고 유입과 주문 데이터를 조합해 매출 기여도 분석.",
+      "미리캔버스 광고 성과 분석.",
     isCurrent: false,
   },
   {
