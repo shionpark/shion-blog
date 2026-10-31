@@ -1,6 +1,6 @@
 ---
 title: "JavaScript 모듈 시스템부터 Yarn PnP 트러블슈팅까지"
-description: "CommonJS와 ES Module의 차이, 패키지 매니저별 링크 전략, Yarn PnP 기반 모노레포 구성, 그리고 Webpack 설정 오류와 모듈 경로 문제를 해결한 과정을 정리한다."
+description: "CommonJS와 ES Module의 차이, 패키지 매니저별 링크 전략, Yarn PnP 모노레포 환경, 그리고 Webpack 설정 오류와 모듈 경로 문제를 해결한 과정을 정리한다."
 date: "2025-05-05"
 tags: ["JavaScript", "TypeScript", "Webpack", "PnP", "CommonJS", "ES Module", "Monorepo"]
 published: true
@@ -10,7 +10,7 @@ published: true
 
 모듈 시스템과 패키지 매니저는 단순한 설정 요소가 아니다. 코드의 유지보수성과 빌드 성능, 협업 효율까지 좌우하는 핵심 인프라다.
 
-이 글에서는 모듈 시스템의 등장 배경부터 패키지 매니저별 링크 전략, Yarn PnP 기반 모노레포 구성, 그리고 Webpack 설정 오류와 모듈 경로 문제를 해결한 과정까지 정리했다.
+이 글에서는 모듈 시스템의 등장 배경부터 패키지 매니저별 링크 전략, Yarn PnP 모노레포 환경, 그리고 Webpack 설정 오류와 모듈 경로 문제를 해결한 과정까지 정리했다.
 
 ## JavaScript 모듈 등장 배경
 
@@ -126,24 +126,26 @@ Webpack 설정 파일을 `.js`로 바꾸고 `module.exports`를 쓰면 간단하
 
 Emotion, Radix 등 모듈이 `yarn install` 이후에도 인식되지 않는 문제가 발생했다. VSCode, TypeScript, Yarn이 PnP 환경을 제대로 연동하지 못한 데서 비롯된 문제였다.
 
-설치 여부를 확인해 보니 패키지 자체는 설치됐지만 `.pnp.cjs`와 `.yarn/cache`에 파일이 정상적으로 풀리지 않아 TypeScript가 `@emotion/react/jsx-runtime`을 찾지 못하는 상태였다.
+설치 여부를 확인해 보니 패키지는 `.yarn/cache`에 zip 파일로 들어 있었다. PnP는 패키지를 `node_modules`에 풀지 않고 `.pnp.cjs`로 경로를 알려 주는데, TypeScript와 VSCode가 이 방식을 몰라 `@emotion/react/jsx-runtime`을 찾지 못하는 상태였다.
 
 ### 해결 순서
 
 1. **캐시 및 설치 정보 삭제**
 
 ```bash
-rm -rf node_modules .pnp.* .yarn/cache .yarn/install-state.gz yarn.lock
+rm -rf node_modules .pnp.* .yarn/cache .yarn/install-state.gz
 ```
 
-1. **Yarn 버전 설정 및 PnP 활성화**
+`yarn.lock`은 지우지 않는다. lock 파일을 지우면 다시 설치할 때 의존성 버전이 새로 정해져 고정이 깨진다.
+
+2. **Yarn 버전 설정 및 PnP 활성화**
 
 ```bash
-yarn set version berry
+yarn set version 4.4.0
 yarn config set nodeLinker pnp
 ```
 
-1. **VSCode 연동 재설정**
+3. **VSCode 연동 재설정**
 
 ```bash
 yarn dlx @yarnpkg/sdks vscode
@@ -157,7 +159,7 @@ yarn dlx @yarnpkg/sdks vscode
 }
 ```
 
-1. **재설치**
+4. **재설치**
 
 ```bash
 yarn install
