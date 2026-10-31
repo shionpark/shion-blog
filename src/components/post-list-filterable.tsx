@@ -20,8 +20,9 @@ type CategoryTab = {
 const CATEGORY_TABS: CategoryTab[] = [
   { key: "all", label: "전체", categories: [] },
   { key: "frontend", label: "Frontend", categories: ["frontend"] },
-  { key: "backend", label: "Backend", categories: ["backend", "analytics"] },
-  { key: "career", label: "Career", categories: ["career", "general"] },
+  { key: "backend", label: "Backend", categories: ["backend"] },
+  { key: "data", label: "Data", categories: ["analytics"] },
+  { key: "devops", label: "DevOps·협업", categories: ["devops"] },
 ];
 
 export function PostListFilterable({ posts }: PostListFilterableProps) {
