@@ -9,7 +9,7 @@ export default function NotFound() {
       </p>
       <Link
         href="/"
-        className="text-accent hover:opacity-80 transition-opacity"
+        className="underline underline-offset-4 decoration-foreground/30 hover:decoration-foreground transition-colors"
       >
         홈으로 돌아가기 &rarr;
       </Link>

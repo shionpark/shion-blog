@@ -41,7 +41,6 @@ body {
 .prose {
   --prose-body: var(--foreground);
   --prose-headings: var(--foreground);
-  --prose-links: var(--accent);
   --prose-code-bg: var(--muted);
 }
 
@@ -65,13 +64,14 @@ body {
 }
 
 .prose a {
-  color: var(--prose-links);
+  color: var(--foreground);
   text-decoration: underline;
-  text-underline-offset: 3px;
+  text-decoration-color: color-mix(in srgb, var(--foreground) 30%, transparent);
+  text-underline-offset: 4px;
 }
 
 .prose a:hover {
-  opacity: 0.8;
+  text-decoration-color: var(--foreground);
 }
 
 .prose ul {

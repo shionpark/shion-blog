@@ -31,7 +31,7 @@ export default function ProjectsPage() {
                   </span>
                 </div>
                 <p className="text-sm text-muted-foreground/70 mb-1">
-                  {project.role}
+                  {project.role.replace(/\s*\(.*\)$/, "")}
                 </p>
                 <p className="text-[15px] text-muted-foreground leading-relaxed">
                   {project.description}
