@@ -70,7 +70,7 @@ my-service/
 
 ## Yarn Workspace + PnP 기반 모노레포 구성
 
-`gymlight-manager`와 `gymlight-design-system`은 역할은 다르지만 동일한 기술 스택을 공유한다. 의존성 관리와 개발 효율을 위해 모노레포 구조를 선택했다.
+`gymlight-manager`와 `gymlight-design-system`은 역할은 다르지만 동일한 기술 스택을 공유한다. 두 패키지는 Yarn Workspace(PnP) 모노레포로 관리되고, 나는 이 모노레포 환경에서 작업했다.
 
 ```bash
 gymlight-frontend/
