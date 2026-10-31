@@ -3,7 +3,7 @@ title: "부트캠프를 마무리하면서"
 description: "첫 부트캠프를 통해 목표를 달성했는지, 무엇을 배웠는지, 어떤 점을 느꼈는지를 정리하고 잊지 않기 위해 기록합니다."
 date: "2026-01-02"
 tags: []
-published: true
+published: false
 ---
 
 > 작성일: 26/01/12
