@@ -1,11 +1,13 @@
 ---
-title: "모달 아키텍처 여정 — useState에서 선언적 시스템까지"
-description: "모달이 1개일 때는 간단하지만, 20개로 늘어나면 상태 폭발과 초기화 버그가 찾아온다. 커스텀 훅부터 전역 매니저, render prop, 도메인별 캡슐화까지 모달 구조를 단계적으로 개선한 과정을 정리한다."
+title: "모달 구조, useState에서 선언적 시스템까지"
+description: "모달이 1개일 때는 간단하지만, 20개로 늘어나면 상태 폭발과 초기화 버그가 찾아온다. 커스텀 훅부터 전역 매니저, render prop, 도메인별 훅까지 모달 구조를 단계별로 정리하고, 실제 프로젝트에서 쓴 구조를 함께 담았다."
 date: "2025-08-25"
 tags: ["React", "모달", "설계패턴", "리팩토링"]
 published: true
 featured: true
 ---
+
+1~3단계는 모달이 늘어날 때 흔히 거치는 구조를 정리한 것이고, 4~5단계는 헬스장 관리 시스템(Gymlight)에서 팀과 실제로 쓴 구조다.
 
 ## 모달은 왜 복잡해지는가
 
@@ -78,7 +80,7 @@ function useModalWithData<T>() {
 
 ## 3단계: 전역 모달 매니저
 
-모달을 사용하는 컴포넌트와 렌더링 위치를 분리하고 싶다면 전역 상태를 활용한다.
+모달을 사용하는 컴포넌트와 렌더링 위치를 분리하고 싶다면 전역 상태를 활용한다. 아래는 jotai로 만든 예시다.
 
 ```typescript
 // stores/modal.ts
@@ -139,7 +141,7 @@ const formComponents = {
 const FormComponent = props?.domain ? formComponents[props.domain] : null;
 ```
 
-이 방식은 도메인을 추가할 때마다 모달 코드가 변경되어야 한다. 모달의 책임을 분리해야 한다. 모달은 **레이아웃만** 담당하고 어떤 컴포넌트를 보여줄지는 **외부에서 제어**하도록 children을 함수로 받는 render prop 패턴을 적용했다.
+이 방식은 도메인을 추가할 때마다 모달 코드가 변경되어야 한다. 모달의 책임을 분리해야 한다. 모달은 **레이아웃만** 담당하고 어떤 컴포넌트를 보여줄지는 **외부에서 제어**하도록 children을 함수로 받는 render prop 패턴을 적용했다. Gymlight에서는 모달 상태를 Recoil(`modalState`)로 두었다.
 
 ```typescript
 interface ModalProps<T> {
@@ -149,7 +151,7 @@ interface ModalProps<T> {
 }
 
 const Modal = <T,>({ title, children, onClose }: ModalProps<T>) => {
-  const { isOpen, data } = useRecoilValue(modalAtom);
+  const { isOpen, data } = useRecoilValue(modalState);
 
   return (
     <Overlay isOpen={isOpen} onMouseDown={onClose}>
@@ -167,7 +169,7 @@ const Modal = <T,>({ title, children, onClose }: ModalProps<T>) => {
 
 ## 5단계: 도메인별 훅으로 캡슐화
 
-모달을 여는 로직이 페이지 컴포넌트에 직접 노출되면 코드가 길어진다. 도메인마다 별도의 커스텀 훅을 만들어 캡슐화했다.
+모달을 여는 로직이 페이지 컴포넌트에 직접 노출되면 코드가 길어진다. 영진 님이 지점 관리 화면에 도메인별 훅(`useBranchModals`)을 도입했고, 내가 만든 render prop 모달과 합쳐 쓰는 구조가 됐다.
 
 ```typescript
 export const useBranchModals = () => {
@@ -211,7 +213,7 @@ const BranchPage = () => {
 
 ## 초기화 문제 해결
 
-모달을 닫았다가 다시 열면 이전 입력값이 남아있는 버그는 흔하다. 실제로 프로젝트에서 이 문제를 겪었다. 상품 수정 모달을 닫고 등록 모달을 열었는데 수정 데이터가 그대로 남아있었다.
+모달을 닫았다가 다시 열면 이전 입력값이 남아있는 버그는 흔하다. 예를 들어 상품 수정 모달을 닫고 등록 모달을 열면 수정하던 데이터가 그대로 남아 있는 식이다.
 
 원인은 React가 같은 위치의 컴포넌트를 동일한 인스턴스로 간주하기 때문이다. 컴포넌트가 언마운트되지 않으면 내부 상태가 초기화되지 않는다.
 
@@ -253,9 +255,6 @@ const BranchPage = () => {
 
 ## 정리
 
-모달 구조를 개선하며 가장 크게 느꼈다 — UI와 로직은 적절한 위치에서 협력하면서도 독립되어야 한다.
+단계마다 반복된 기준은 하나였다. 모달은 레이아웃만 맡고, 어떤 내용을 보여 줄지는 바깥에서 정한다. 초기화는 상태를 직접 지우기보다 조건부 렌더링과 `key`로 React가 컴포넌트를 새로 만들게 하는 쪽이 단순했다.
 
-- **모달은 레이아웃만** — 어떤 도메인 로직도 모달 안에 두지 않는다
-- **데이터 흐름을 명확히** — render prop으로 외부에서 내부를 제어한다
-- **초기화는 React에 맡긴다** — 조건부 렌더링과 key를 활용해 언마운트/리마운트로 해결한다
-- **타입은 설계 도구** — props 구조를 타입으로 명확히 하면 실수를 컴파일 단계에서 잡는다
+아직 다루지 못한 것은 접근성이다. 지금 구조에는 포커스 가두기, Esc로 닫기, `aria-modal` 같은 처리가 없다.

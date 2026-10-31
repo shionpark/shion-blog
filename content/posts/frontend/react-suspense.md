@@ -344,7 +344,7 @@ fallback UI를 무엇으로 구성할지는 구조의 문제라기보다 UX 선�
 - 각 섹션은 자신이 필요한 데이터만 로딩하며 서로의 영역에 영향을 주지 않는다
 
 Fine-grained Suspense 패턴이 필요했던 이유는,  
-Suspense로 감싼 컴포넌트에 렌더링 시점에 비동기 값을 필요로 하는 훅(`useSearchParams`, `useSuspenseQuery`)이 있기 때문에  
+Suspense로 감싼 컴포넌트에는 데이터가 올 때까지 렌더링을 멈추는 `useSuspenseQuery`가 있고, `useSearchParams`를 쓰는 컴포넌트는 정적 프리렌더링 때 가장 가까운 Suspense 경계까지 클라이언트 렌더링으로 넘어가기 때문에  
 **Suspense 경계를 세분화하지 않을 경우 페이지 전체가 불필요하게 대기 상태에 들어갈 수 있기 때문**이다.
 
 #### Problem
@@ -404,7 +404,7 @@ Suspense와 ErrorBoundary를 조합해 사용하다 보니 반복되는 패턴�
 - 섹션마다 fallback을 직접 지정하다 보니, 지정하지 않은 곳의 로딩 UI가 제각각이 되기 쉽다는 점
 - `useSuspenseQuery`를 쓰는 Client Component도 **서버 렌더링 단계에서 한 번 실행된다**는 점
 
-이 문제를 다루는 데 Toss에서 만든 [Suspensive](https://suspensive.org/)의 `@suspensive/react`를 썼다. 이 라이브러리는 팀원이 프로젝트에 먼저 추가해 둔 것이고, 나는 이 구조에서 어떤 옵션이 무엇을 해결하는지 정리했다.  
+이 문제를 다루는 데 토스(toss) GitHub 조직에서 공개한 [Suspensive](https://suspensive.org/)의 `@suspensive/react`를 썼다. 이 라이브러리는 팀원이 프로젝트에 먼저 추가해 둔 것이고, 나는 이 구조에서 어떤 옵션이 무엇을 해결하는지 정리했다.  
 Suspensive는 React의 `Suspense`와 `ErrorBoundary`를 대체하는 것이 아니라, 같은 사용법 위에 몇 가지 옵션을 더한 라이브러리다.
 
 ### Suspensive로 정리한 것들
@@ -436,7 +436,7 @@ export default function SessionDetailContainer({ sessionId }: { sessionId: numbe
 - 클라이언트: hydration 이후 `SessionDetail`을 렌더링하고, 데이터를 기다리는 동안 같은 스켈레톤을 보여준다
 
 서버 HTML과 첫 클라이언트 렌더링이 모두 스켈레톤이기 때문에 hydration 불일치도 생기지 않는다.  
-대신 서버 HTML에는 실제 콘텐츠가 들어가지 않으므로, 검색 노출이 중요한 영역보다는 **찜한 세션 목록이나 세션 상세처럼 브라우저에서 요청하는 데이터 영역**에 적용했다.
+대신 서버 HTML에는 실제 콘텐츠가 들어가지 않으므로, 검색 노출이 중요한 영역보다는 **브라우저에서 요청하는 데이터 영역**에 맞다. 나는 찜한 세션 목록에 적용했고, 위 예시의 세션 상세에는 석준 님이 같은 방식을 적용했다.
 
 #### 2. ErrorBoundary fallback에서 `error`, `reset` 받기
 
@@ -457,7 +457,7 @@ Suspensive의 `ErrorBoundary`는 fallback을 함수로 넘기면 `error`와 `res
 
 #### 3. `DefaultPropsProvider` — 기본 fallback 통일
 
-fallback을 따로 지정하지 않은 `Suspense`에도 같은 로딩 UI가 보이도록, 앱 최상단에서 기본값을 지정했다.
+fallback을 따로 지정하지 않은 `Suspense`에도 같은 로딩 UI가 보이도록, 석준 님이 앱 최상단에 기본값을 지정해 두었다.
 
 ```tsx
 'use client'
@@ -476,7 +476,7 @@ export default function SuspensiveDefaultPropsProvider({ children }: { children:
 }
 ```
 
-기본 fallback은 스피너로 두고, 레이아웃이 중요한 페이지에서만 스켈레톤을 명시적으로 넘기는 방식으로 역할을 나눴다.
+기본 fallback은 스피너이고, 나는 레이아웃이 중요한 목록·상세 페이지에 스켈레톤을 명시적으로 넘겼다.
 
 > 데이터 요청에 쓰는 `useSuspenseQuery`, `useSuspenseInfiniteQuery`는 TanStack Query v5부터 `@tanstack/react-query`에서 기본으로 제공하므로, 별도 래퍼 없이 그대로 사용했다.
 

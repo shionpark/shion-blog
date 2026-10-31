@@ -31,4 +31,4 @@ order: 4
 - [Fire-and-Forget 호출이 만든 502](/posts/fire-and-forget-race-condition)
 - [내가 바꾼 Dockerfile이 프로덕션을 밤새 내렸다](/posts/prisma-openssl-production-down)
 - [Python Fernet 암호문을 Node.js에서 주고받기](/posts/fernet-cross-platform-encryption)
-- [캡차를 AI로 풀어 하이픈 가입을 중계하는 FastAPI 서비스](/posts/fastapi-insurance-microservice)
+- [하이픈 다단계 가입을 중계하는 FastAPI 서비스](/posts/fastapi-insurance-microservice)

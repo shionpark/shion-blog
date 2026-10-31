@@ -1,5 +1,5 @@
 ---
-title: "캡차를 AI로 풀어 하이픈 가입을 중계하는 FastAPI 서비스"
+title: "하이픈 다단계 가입을 중계하는 FastAPI 서비스"
 description: "NestJS 옆에 붙인 FastAPI 보험 조회 서비스가 하이픈 가입·인증·계정 찾기의 다단계 흐름을 어떻게 중계하는지, 5xx 재시도와 자동 배포까지 정리한다."
 date: "2026-09-08"
 tags: ["FastAPI", "마이크로서비스", "인톡 파트너스", "Python"]
@@ -30,7 +30,7 @@ NestJS가 `POST /insurance/verify/init`을 부르면 FastAPI가 이렇게 처리
 
 ## 암호화
 
-비밀번호는 Fernet으로 암호화해서 NestJS가 DB에 저장하고, 복호화는 이 서비스가 한다. 암호화 구현은 [Fernet 글](/posts/fernet-cross-platform-encryption)에 있다.
+비밀번호는 Fernet으로 암호화해서 NestJS가 DB에 저장한다. 복호화는 가입·인증 단계에서는 이 서비스가, 하이픈을 직접 부르는 조회 단계에서는 NestJS가 한다. 암호화 구현은 [Fernet 글](/posts/fernet-cross-platform-encryption)에 있다.
 
 ## 5xx는 재시도, 4xx는 그대로
 
@@ -59,7 +59,7 @@ for attempt in range(self.max_retries + 1):
 
 ## 테스트와 배포
 
-테스트는 pytest다. 하이픈 클라이언트(14개), 라우트(10개), 암호화(8개)를 검증한다. 하이픈 호출은 모킹해서 실제 API를 부르지 않는다.
+테스트는 pytest다. 9월 기준 하이픈 클라이언트 19개, 라우트 20개, 암호화 8개 테스트가 있다. 하이픈 호출은 모킹해서 실제 API를 부르지 않는다.
 
 배포는 `main`에 푸시하면 GitHub Actions가 Docker 이미지를 빌드하고, NAT 인스턴스를 점프 호스트로 EC2에 SSH 접속해 컨테이너를 교체한 뒤 헬스체크를 한다. 4월 9일 첫 커밋과 같은 날 넣었다.
 

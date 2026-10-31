@@ -2,13 +2,14 @@
 title: "왜 useOptimistic 훅이 낙관적 업데이트를 단순화해주지 않는가"
 description: "React 19의 useOptimistic이 Concurrent React 환경에서 race condition을 해결하지 못하는 이유와, React Query 기반 접근을 선택한 과정을 정리합니다."
 date: "2026-01-22"
-tags: ["Optimistic Update", "React19", "useOptimistic"]
+tags: ["Optimistic Update", "React19", "useOptimistic", "TanStack Query"]
 published: true
 ---
 
 낙관적 업데이트는 React 19에서 `useOptimistic`이라는 공식 API를 갖게 되었지만,  
 Concurrent React 환경에서는 오히려 직접 구현할 때 고려할 것이 늘어났다.  
-그래서 프로젝트 팀에서는 이 문제를 컴포넌트 레벨이 아닌 React Query에 위임하는 선택을 했다.
+그래서 팀원들과 논의해 이 문제를 컴포넌트 레벨이 아닌 React Query에 맡기기로 했다.
+세션 찜하기의 낙관적 업데이트 훅은 진우 님이 구현하고 프로젝트 Discussion에 과정을 정리했다. 나는 그 코드를 읽으며 `useOptimistic`을 쓰지 않은 이유와 남은 한계를 정리했다.
 
 그 과정에서 고민했던 배경과 실제 구현 방식, 그리고 글을 정리하며 발견한 한계까지 기록한다.
 
@@ -27,10 +28,10 @@ React Query의 리턴값, `isPending`으로 서버에 요청 중일 동안
 다른 UI를 보여주거나 버튼을 잠시 비활성화할 수도 있지만  
 클릭과 동시에 결과가 보여지는 게 사용자 입장에서 더 자연스럽다.
 
-### 현재 프로젝트에서의 구현
+### 우리 프로젝트의 구현
 
 낙관적 업데이트를 React의 렌더링 모델에 맡기지 않고, **서버 상태 캐시를 기준**으로 관리하기 위해  
-React Query(TanStack Query v5)의 mutation lifecycle을 사용한다. 세션 찜하기 기능의 코드다.
+React Query(TanStack Query v5)의 mutation lifecycle을 사용한다. 진우 님이 구현한 세션 찜하기 코드다.
 
 #### mutationFn
 
@@ -151,17 +152,17 @@ onSettled: (data, error, variables, onMutateResult, context) => {
 const [liked, setLiked] = useState(false)
 
 async function onClick() {
-  // 1️⃣ UI를 먼저 바꿈
+  // 1. UI를 먼저 바꿈
   setLiked((prev) => !prev)
 
   try {
-    // 2️⃣ 서버 요청
+    // 2. 서버 요청
     const result = await toggleLike()
 
-    // 3️⃣ 서버 응답으로 다시 동기화
+    // 3. 서버 응답으로 다시 동기화
     setLiked(result.liked)
   } catch (e) {
-    // 4️⃣ 실패 시 되돌림
+    // 4. 실패 시 되돌림
     setLiked((prev) => !prev)
   }
 }
@@ -169,10 +170,10 @@ async function onClick() {
 
 이 방식은 너무 많은 전제를 암묵적으로 깔고 있다:
 
-- 요청은 항상 하나씩만 날아간다 (❌, 사용자는 연타한다)
-- 서버 응답은 항상 요청 순서대로 온다 (❌, 네트워크는 순서를 보장하지 않는다)
-- 실패 시 `prev`를 뒤집으면 원래 상태로 돌아간다 (❌, 그 사이 다른 클릭이 상태를 바꿨다면 엉뚱한 값으로 돌아간다)
-- 이 컴포넌트만 이 상태를 쓴다 (❌)
+- 요청은 항상 하나씩만 날아간다 (실제로는 사용자가 연타한다)
+- 서버 응답은 항상 요청 순서대로 온다 (네트워크는 순서를 보장하지 않는다)
+- 실패 시 `prev`를 뒤집으면 원래 상태로 돌아간다 (그 사이 다른 클릭이 상태를 바꿨다면 엉뚱한 값으로 돌아간다)
+- 이 컴포넌트만 이 상태를 쓴다 (목록·상세 화면이 같은 데이터를 쓴다)
 
 여기에 Concurrent React에서는 transition 안의 업데이트가 중단되거나 나중에 반영될 수 있기 때문에, 언제 UI가 바뀌고 서버 응답이 언제 덮어쓸지 예측하기가 더 어려워진다. 그래서 UI 깜빡임(flicker), 상태가 왔다갔다 하는 현상과 같은 버그가 생길 수 있다.
 
@@ -304,12 +305,12 @@ Concurrent React 환경에서는 낙관적 업데이트 자체가 단순한 setS
 useOptimistic는 이러한 환경에서 "UI를 먼저 보여주고, 이후 상태를 정리하는 패턴"을 React 차원에서 공식적으로 지원하기 위해 등장했다.
 하지만 race condition이나 서버 상태 정합성까지 해결해주지는 않는다.
 
-우리 프로젝트에서는 이 복잡함을 컴포넌트 레벨에서 직접 책임지기보다, React Query의 mutation lifecycle에 위임하는 선택을 했다.
+우리는 이 복잡함을 컴포넌트 레벨에서 직접 책임지기보다, React Query의 mutation lifecycle에 위임하는 선택을 했다.
 
 - optimistic UI는 cache snapshot으로 처리하고
 - 실패 시 rollback 기준을 명확히 하며
 - invalidate를 통해 서버를 단일 진실(source of truth)로 유지한다
-- 동시에 진행되는 mutation은 `isMutating`으로 마지막 요청까지 기다린 뒤 동기화한다
+- 동시에 진행되는 mutation까지 다루려면 `isMutating`으로 마지막 요청을 기다린 뒤 동기화하는 방법이 있다. 프로젝트에는 아직 적용하지 않았다
 
 결과적으로 우리는 낙관적 UI 자체보다 **"어디까지를 React의 책임으로 둘 것인가"를 선택한 셈이다.**
 useOptimistic는 분명 의미 있는 API지만, 모든 낙관적 업데이트에 적용할 도구는 아니다. 상황에 따라, 오히려 더 높은 수준의 추상화가 동시성 환경에서 더 안전한 선택이 될 수 있다. 다만 그 추상화가 무엇을 막아주고 무엇을 막아주지 않는지는 여전히 직접 알고 있어야 한다.

@@ -46,7 +46,7 @@ export type MixpanelEvent =
 
 ## button_id를 한 파일에 모았다
 
-CTA 클릭은 `p_clicked_cta` 이벤트에 `button_id`를 붙여 구분한다. `trackCTA()` 헬퍼는 1월에 다른 팀원이 만들어 둔 것이다. 내가 한 일은 `button_id`를 `mixpanel-taxonomy.ts` 한 곳에 모으고 규칙을 정한 것이다.
+CTA 클릭은 `p_clicked_cta` 이벤트에 `button_id`를 붙여 구분한다. 1월에 팀원이 GTM용 `trackCTAClick`을 만들어 두었고, 나는 4월에 Mixpanel 쪽 `trackCTA()` 헬퍼를 만들면서 `button_id`를 `mixpanel-taxonomy.ts` 한 곳에 모으고 규칙을 정했다.
 
 ```typescript
 // 컨벤션: cta_{page}_{purpose}
