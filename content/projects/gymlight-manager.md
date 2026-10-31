@@ -1,7 +1,7 @@
 ---
 title: "Gymlight Manager"
 description: "다지점 헬스장 운영 관리 시스템. 프리랜서 프론트엔드 개발자로 락커·통계·출석 화면, 지점 접근 분리, 태블릿 체크인을 구현하고 요구사항 정의서를 썼습니다."
-role: "프론트엔드 개발자 (프리랜서)"
+role: "프론트엔드 개발자 (프리랜서, 3인 개발팀)"
 period: "2023.12 ~ 2025.04"
 stack: ["React", "TypeScript", "TanStack Query", "Recoil", "Emotion", "Storybook"]
 url: "https://gymlight-demo.vercel.app"
@@ -26,3 +26,5 @@ order: 6
 
 - [매니저가 다른 지점 직원을 볼 수 있었다](/posts/role-based-dashboard)
 - [ApexCharts 대시보드 구현기](/posts/gymlight-apexcharts-dashboard)
+- [JavaScript 모듈 시스템부터 Yarn PnP 트러블슈팅까지](/posts/webpack-pnp-error)
+- [MSW로 API 모킹 환경 구축하기](/posts/msw)

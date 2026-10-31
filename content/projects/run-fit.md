@@ -1,7 +1,7 @@
 ---
 title: "Run Fit"
 description: "지역 기반 러닝 크루·세션 탐색 플랫폼. 코드잇 부트캠프 팀 프로젝트에서 URL 기반 필터 상태와 섹션별 Suspense 경계, 공용 컴포넌트를 맡았습니다."
-role: "프론트엔드 개발자"
+role: "프론트엔드 개발자 (4인 팀)"
 period: "2025.12 ~ 2026.01"
 stack: ["Next.js", "React", "TypeScript"]
 url: "https://run-fit-eight.vercel.app/sessions"
@@ -25,3 +25,11 @@ order: 5
 ## Suspense Boundary 설계
 
 필터를 바꿀 때마다 전체 페이지가 로딩 스피너로 교체되는 문제가 있었습니다. 크루 목록과 세션 목록의 데이터 소스가 다른데 한 Suspense로 묶여있어서, 둘 중 느린 쪽이 전체를 블로킹했습니다. 섹션별로 Suspense Boundary를 분리했습니다. 팀에서 쓰는 Suspensive의 `useSuspenseQuery` 위에서 작업했고, 크루 정보는 먼저 보이고 세션과 리뷰는 준비되면 채워지는 구조입니다.
+
+## 관련 글
+
+- [shadcn/ui Calendar의 Range 선택 UX 개선과 타입 설계](/posts/calendar)
+- [URL 기반 필터 상태에서 Suspense + 스켈레톤 UI까지](/posts/react-suspense)
+- [왜 useOptimistic 훅이 낙관적 업데이트를 단순화해주지 않는가](/posts/optimistic-update)
+- [FSD는 만병 통치약이 아니다](/posts/fsd-is-not-silver-bullet)
+- [GitHub Actions와 Git Hooks로 배포·협업 규칙 세우기](/posts/git-workflow)

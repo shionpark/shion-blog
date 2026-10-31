@@ -23,6 +23,7 @@ order: 4
 
 - [GA4 · Mixpanel · 자체 DB — 3중 트래킹 불일치를 해소한 과정](/posts/triple-tracking-data-consistency)
 - [Next.js에 Mixpanel 프록시를 붙이고 이벤트 이름 규칙을 정했다](/posts/mixpanel-nextjs-proxy)
+- [신청이 어디서 왔는지 남기기 — 비회원 신청과 Meta 리드를 한 DB로](/posts/guest-application-lead-pipeline)
 - [Redis TTL로 중복을 막았더니 알림톡이 매일 다시 나갔다](/posts/notification-infinite-loop-bug)
 - [Fire-and-Forget 호출이 만든 502](/posts/fire-and-forget-race-condition)
 - [내가 바꾼 Dockerfile이 프로덕션을 밤새 내렸다](/posts/prisma-openssl-production-down)
