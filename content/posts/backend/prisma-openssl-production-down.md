@@ -1,6 +1,6 @@
 ---
 title: "내가 바꾼 Dockerfile이 프로덕션을 밤새 내렸다 — Prisma 엔진과 OpenSSL"
-description: "Dockerfile에서 prisma generate를 builder 결과 복사로 바꿨더니 베이스 이미지의 OpenSSL이 달라져 서버가 943번 재시작됐다. 카카오 로그인 장애 보고로 시작한 추적 기록."
+description: "Dockerfile에서 prisma generate를 builder 결과 복사로 바꿨더니 builder와 런타임의 OpenSSL 환경이 달라 서버가 943번 재시작됐다. 카카오 로그인 장애 보고로 시작한 추적 기록."
 date: "2026-07-08"
 tags: ["Prisma", "Docker", "버그", "장애대응"]
 published: true
@@ -44,7 +44,9 @@ RUN npx prisma generate --schema=models/schema.prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 ```
 
-문제는 `node:20-slim`이 Debian Bullseye(OpenSSL 1.1.x)에서 Bookworm(OpenSSL 3.0.x)으로 바뀐 시점과 겹쳤다는 거였다. 이전에는 런타임에서 `prisma generate`를 돌려서 런타임 OpenSSL에 맞는 엔진이 만들어졌다. 복사 방식으로 바꾸면서 builder와 런타임의 OpenSSL 버전이 같아야 한다는 전제가 생겼는데, 그 전제가 깨질 수 있다는 점을 놓쳤다.
+이 커밋을 넣은 건 production 단계의 `prisma generate`가 실패해서였다. `prisma-dbml-generator`가 devDependency라 production 의존성에는 없었다.
+
+문제는 builder와 production의 환경이 같지 않았다는 점이다. 두 단계 모두 `node:20-slim`이지만, production 단계만 Playwright용 시스템 패키지를 설치하면서 OpenSSL 3 라이브러리를 갖고 있었다. 런타임이 `debian-openssl-3.0.x` 엔진을 찾은 것도 그래서다. builder 단계에는 OpenSSL이 없었고, Prisma는 OpenSSL 버전을 감지하지 못하면 1.1.x로 가정하고 엔진을 만든다. 예전에는 production에서 generate해서 3.0.x 엔진이 만들어졌는데, builder 결과를 복사하자 1.1.x 엔진이 들어갔다. 복사 방식은 두 단계의 환경이 같다는 전제가 필요했는데, 그걸 확인하지 않았다.
 
 ## 고친 것
 
@@ -63,7 +65,13 @@ generator client {
 
 약 16~17시간이다.
 
-## 이후에 정한 것
+## 남은 것
 
-- 베이스 이미지 태그 고정(digest)도 방법이었지만 보안 패치를 못 받는 단점이 있어서 `binaryTargets` 명시를 택했다. 이미지가 바뀌어도 엔진이 맞게 남는다. 이미지 크기가 조금 늘어난다.
+- `binaryTargets`를 명시하면 빌드 환경에서 OpenSSL을 감지한 결과와 상관없이 런타임용 엔진이 함께 만들어진다. 대신 이미지 크기가 조금 늘어난다.
 - 이 장애는 CI에서 만든 이미지를 EC2에 올렸을 때만 났다. 로컬에서는 `prisma generate`를 직접 돌리니 드러나지 않았다. Dockerfile을 바꿨다면 `docker build`와 `docker run`을 로컬에서 먼저 해 봤어야 했다.
+
+## 배운 점
+
+로컬에서 잘 되던 변경이 프로덕션에서만 깨진 건, 내가 바꾼 것이 코드가 아니라 실행 환경이었기 때문이다. 빌드 결과물을 다른 단계로 복사하는 순간, 그 결과물이 만들어진 환경과 실행될 환경이 같다는 가정이 생긴다. 이번에는 그 가정을 확인하지 않고 배포했다.
+
+장애를 알게 된 경로도 돌아보게 됐다. 서버가 밤새 떠 있지 못했는데 아침에 사용자 보고로 알았다. 잘못된 커밋 하나보다, 장애가 나도 먼저 알 방법이 없었다는 점이 더 큰 빈틈이었다.

@@ -1,12 +1,14 @@
 ---
 title: "왜 Next.js에서 Kakao Map Script가 로드되지 않을까?"
-description: "Redux Store와 Script strategy 속성으로 window.kakao.maps 타입 에러 해결 과정"
-date: "2025-07-09"
-tags: ["Redux", "Next.js", "KakaoMap"]
+description: "개인 프로젝트 semi-map에서 Kakao 지도 SDK가 로드되기 전에 window.kakao에 접근해 생긴 런타임 에러를, next/script의 로드 이벤트와 전역 상태로 해결한 과정"
+date: "2025-07-11"
+tags: ["Next.js", "KakaoMap", "Redux", "Zustand"]
 published: true
 ---
 
 # Next.js에 Kakao 지도 세팅하기
+
+개인 프로젝트 [semi-map](https://github.com/shionpark/semi-map)에 카카오 지도를 붙이면서 정리한 글이다. 처음 정한 명세는 위치 권한을 허용하면 현재 위치를 고유 아이콘으로 표시하고, 주변 음식점 목록과 마커를 보여 주며, 버튼으로 현재 위치에 돌아오는 것이었다. 이 글은 그 첫 단계인 지도 SDK 로드와 초기화를 다룬다.
 
 [Next.js 공식 문서](https://nextjs.org/docs/app/guides/scripts)에 의하면, Next.js에서 **외부 스크립트**(third-party script)를 로드하려면 next/script를 가져와서 레이아웃 구성 요소에 스크립트를 직접 포함해야 한다.
 
@@ -27,6 +29,7 @@ Next.js는 동일한 레이아웃에서 여러 경로를 탐색하더라도 스�
 - `afterInteractive`: (**기본값**) 페이지의 일부가 hydrate 된 후에 조금 더 빨리 스크립트 로드
 - `lazyOnload`: 브라우저가 작동하지 않을 때(유휴 시간) 스크립트 나중에 로드
 - `worker`: (실험적) 웹 워커 내에서 스크립트 로드
+
 hydration 이전 Next.js 자체 코드보다 먼저 실행돼야 하는 전역 스크립트는 `beforeInteractive` 전략을 선택하면 된다. 레이아웃(`app/layout.tsx`) 또는 문서(`pages/_document.js`) 전용 위치 제약이 있어 일반 컴포넌트에서 사용 불가하다.
 
 나는 모든 클라이언트 컴포넌트 내부에서 사용 가능한 `afterInteractive` 전략을 선택했다. 루트 경로의 레이아웃이라면 `beforeInteractive`를 선택해도 되지만 지도 SDK는 특정 경로에서만 쓰이고, 브라우저 전용 값들에 접근하기 위함이었다.
@@ -47,7 +50,7 @@ export default function Map() {
 
 # 지도 초기화
 
-모듈 시스템(import)으로 가져오는 라이브러리와 달리, <scirpt /> 태그로 불러오는 외부 스크립트는 브라우저가 kakao라는 객체를 window(전역 객체)에 붙여둔다. 
+모듈 시스템(import)으로 가져오는 라이브러리와 달리, `<script>` 태그로 불러오는 외부 스크립트는 브라우저가 kakao라는 객체를 window(전역 객체)에 붙여둔다. 
 
 [Kakao 공식 문서](https://apis.map.kakao.com/web/sample/basicMap/)에 의하면 아래와 같은 지도 초기화 로직이 필요하다.
 
@@ -66,20 +69,20 @@ window.kakao.maps.load(() => {
 
 ## useEffect 안에서 지도 초기화를 하는 이유
 
-브라우저 전용 API서버에서 실행될 때 window, document, localStorage 등 브라우저 전역 객체는 존재하지 않는다. 잘못 참조하면 `ReferenceError: window is not defined` 와 같이 렌더 단계에서 Hydration Error가 발생할 수 있으므로 안전 가드가 필요하다. DOM을 참조하는 ref 또한 리액트 컴포넌트가 처음으로 DOM에 삽입되는 시점인 마운트(mount) 이후에 접근해야 한다.
+서버에서 실행될 때는 window, document, localStorage 같은 브라우저 전역 객체가 없다. 렌더링 중에 잘못 참조하면 서버 렌더링 단계에서 `ReferenceError: window is not defined`가 나므로 안전 가드가 필요하다. DOM을 참조하는 ref 또한 리액트 컴포넌트가 처음으로 DOM에 삽입되는 시점인 마운트(mount) 이후에 접근해야 한다.
 
 따라서 useEffect를 사용하여 비동기로 로드된 Kakao SDK와 동기화하고, 마운트 시점 이후에 지도를 초기화하였다. 자세히 정리하면 다음과 같다.
 
 1. **window는 Browser-only API**
 - 모듈 시스템(import)으로 가져오는 라이브러리와 달리, 스크립트 태그로 불러오면 브라우저가 kakao라는 객체를 window(전역 객체)에 붙여둔다. 
 - Next.js는 서버 사이드에서 먼저 렌더링하고, 이후에 클라이언트에서 hydration 한다.
-useEffect는 (의존성 배열이 빈 배열인 경우) 브라우저에서 컴포넌트가 마운트된 후에 실행되기 때문에, window.kakao를 안전하게 접근할 수 있는 유일한 시점이다.
+useEffect는 (의존성 배열이 빈 배열인 경우) 브라우저에서 컴포넌트가 마운트된 후에 실행되기 때문에, 마운트 직후 window.kakao에 접근하기에 알맞은 곳이다.
   - Node(SSR)에는 window가 없기 때문에 클라이언트에서만 window.kakao를 찾도록 가드가 필요하다.
-1. **ref는 컴포넌트가 마운트된 후에만 접근 가능**하다.
+2. **ref는 컴포넌트가 마운트된 후에만 접근 가능**하다.
 - useRef로 만든 DOM 참조값은 렌더링 직후에 실제 DOM과 연결된다.
 즉, JSX `<div ref={mapRef} />`가 실제로 브라우저에 만들어진 후 `.current`가 채워진다.
-- 1번과 마찬가지로 `mapRef.current`를 안전하게 접근할 수 있는 유일한 시점이 useEffect 이다.
-1. **외부 스크립트 로딩(SDK 다운로드)은 비동기**이다.
+- 1번과 마찬가지로 마운트 직후 `mapRef.current`를 쓰기에 알맞은 곳이 useEffect다.
+3. **외부 스크립트 로딩(SDK 다운로드)은 비동기**이다.
 - `window.kakao.maps.load()`는 콜백 기반으로 리소스를 로딩하는데, 이를 컴포넌트 실행 단계에서 바로 쓰면 SDK가 아직 준비되지 않아서 에러가 발생할 수 있다. 
 - (위의 코드에는 존재하지 않지만) SDK 로드 상태를 확인하고, 그 안에서 지도를 생성해야 안정적이다.
 ### **‘use client’가 만능이 아니다**
@@ -131,7 +134,7 @@ export default function Map() {
     <>
       {/* autoload=false로 자동 실행 방지 → onLoad에서 sdkLoaded=true */}
       <Script
-        src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_KEY}&autoload=false`}
+        src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_KEY}&autoload=false`}
         onLoad={() => setSdkLoaded(true)}
         onError={() => setSdkLoaded(false)}
       />
@@ -144,16 +147,11 @@ export default function Map() {
 
 외부 스크립트를 불러오고 이 스크립트가 제대로 로드됐는지를 확인해서 지도를 초기화했다. 스크립트 로드 여부를 다른 컴포넌트에서도 그 상태를 참고할 수 있다면 네트워크 절약 및 어디에서나 UI를 표시할 수 있을 것이다. 
 
-만약 위처럼 로컬 상태로 관리할 경우 이런 문제점이 생길 수 있다.
+로컬 상태로 관리하면 지도 컴포넌트가 언마운트됐다가 다시 마운트될 때 문제가 생긴다. 리렌더로는 상태가 초기화되지 않고, next/script도 같은 스크립트를 한 번만 불러온다. 그런데 스크립트가 이미 로드돼 있으면 `onLoad`가 다시 불리지 않아서, 새로 마운트된 컴포넌트의 `sdkLoaded`는 `false`인 채로 남는다. 모달이나 다른 컴포넌트에서도 SDK가 로드됐는지 알 수 없다.
 
-- 페이지를 이동하거나 리렌더되면 로컬 상태가 초기화돼서 SDK가 또 로드될 수 있다.
-- 모달, 탭, 다른 컴포넌트에서 SDK가 로드됐는지 알 수 없다.
-그래서 전역 상태로 sdkLoaded라는 값을 만들어두면, SDK가 한 번만 로드되고 그 상태를 모든 컴포넌트가 공통으로 공유할 수 있다. 
+그래서 로드 상태를 전역에 두기로 했다. 한 번 로드되면 그 상태를 모든 컴포넌트가 같이 보고, 로드 실패나 로딩 상태도 어디서든 보여 줄 수 있다.
 
-- 중복 로드 방지: 한 번만 로드되면 또 불러오지 않음
-- 비동기 동기화: SDK가 로드된 다음에 useEffect로 지도를 만들 수 있으므로 타이밍 문제 감소
-- UI 일관성: 로드 실패/성공 상태를 전역에서 공유하므로 에러 메시지나 로딩 스피너도 어디서든 보여줄 수 있다.
-결국 스크립트 로드 상태는 여러 컴포넌트에서 공유해야 하고, 로딩 시점이 민감한 비동기 작업이기 때문에 전역 상태로 관리하고자 했다.
+> 지금 다시 만든다면 `onReady`로 충분하다. Next.js의 [`onReady`](https://nextjs.org/docs/app/api-reference/components/script#onready)는 스크립트 로드가 끝났을 때와 이후 컴포넌트가 마운트될 때마다 실행된다. 지도 초기화를 `onReady`에 두면 다시 마운트돼도 지도가 그려진다. 당시에는 이 옵션을 몰라 전역 상태로 풀었다.
 
 # Redux를 사용한 전역 스토어 생성
 
@@ -167,11 +165,8 @@ export const store = configureStore({
 });
 ```
 
-처음에는 [configureStore](https://redux.js.org/tutorials/quick-start#create-a-redux-store) 함수로 전역 저장소(store)를 생성하고 layout.tsx에서 [Provider에 store를 전달](https://redux.js.org/tutorials/quick-start#provide-the-redux-store-to-react)하였다. 그러나 이때 전역 store 객체는 SSR에서 요청 간 상태가 섞일 위험이 있고 초기값을 주입할 수 없다는 단점이 있었다.
+처음에는 [configureStore](https://redux.js.org/tutorials/quick-start#create-a-redux-store) 함수로 모듈 전역 store를 만들고 layout.tsx에서 [Provider에 store를 전달](https://redux.js.org/tutorials/quick-start#provide-the-redux-store-to-react)하였다. 그런데 Redux의 [Next.js 가이드](https://redux.js.org/usage/nextjs)는 App Router에서 store를 모듈 전역에 두지 말라고 한다. 서버는 한 프로세스에서 여러 요청을 처리하므로, 모듈 전역 store는 요청 사이에 상태가 섞일 수 있기 때문이다.
 
-- 모듈 로드 시점: `import { store } from “./store”` 가 실행되는 순간 초기 상태 없이 configureStore()가 바로 호출된다. 즉시 스토어가 고정되므로, SSR 단계에서 얻은 preloadedState를 주입할 틈이 없다.
-- 동일한 첫 렌더 보장 불가: 서버/클라이언트가 서로 다른 초기값을 갖게 되므로 React가 같은 트리라고 판단하지 못한다.
-- 첫 Hydration diff가 끝난 뒤에야 값이 맞춰진다.
 ```typescript
 export const makeStore = () => {
   return configureStore({
@@ -180,12 +175,18 @@ export const makeStore = () => {
     },
   });
 };
+
+// StoreProvider.tsx
+export default function StoreProvider({ children }: { children: React.ReactNode }) {
+  const storeRef = useRef<AppStore | null>(null);
+  if (!storeRef.current) {
+    storeRef.current = makeStore();
+  }
+  return <Provider store={storeRef.current}>{children}</Provider>;
+}
 ```
 
-그래서 makeStore 함수를 사용해 호출 시점을 제어하고 요청마다 새로운 인스턴스를 생성할 수 있도록 하였다.
-
-- 스토어 생성 시점을 직접 호출하므로, 서버에서 만든 상태를 그대로 넣어 두 번의 첫 렌더 결과를 완전히 동일하게 맞툰다.
-- 요청마다 별도 인스턴스로 상태 관리 및 상태 격리/중첩 위젯에도 안전하다.
+그래서 store를 만드는 `makeStore` 함수를 두고, `StoreProvider`에서 `useRef`로 한 번만 만들게 했다. 사실 `sdkLoaded`는 브라우저에서만 바뀌는 값이라 이 앱에서 요청 사이에 섞일 상태는 없었다. 가이드가 권하는 구조를 그대로 따른 것이다.
 ### 최종 코드
 
 ```typescript
@@ -224,3 +225,17 @@ export default function MapLayout({ children }: { children: React.ReactNode }) {
   );
 }
 ```
+
+# 이후: Zustand로 옮기다
+
+전역 상태가 `sdkLoaded` 하나뿐인데 Redux는 slice, store, Provider, 타입이 붙은 훅까지 갖춰야 했다. 이틀 뒤 Redux를 걷어내고 Zustand store로 옮겼고([PR #4](https://github.com/shionpark/semi-map/pull/4)), 스토어 테스트도 함께 작성했다.
+
+```typescript
+export const useKakaoSdkStore = create<MapSdkState>((set) => ({
+  isLoaded: false,
+  sdkLoadSuccess: () => set(() => ({ isLoaded: true })),
+  sdkLoadFail: () => set(() => ({ isLoaded: false })),
+}));
+```
+
+Provider 없이 컴포넌트에서 `useKakaoSdkStore`를 바로 쓰고, `Script`의 `onLoad`·`onError`에서 `sdkLoadSuccess`·`sdkLoadFail`을 부르는 구조는 그대로다.
